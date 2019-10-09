@@ -1,0 +1,91 @@
+doctype html
+html
+    head
+        meta(charset='utf-8')
+        meta(name='viewport', content='width=device-width, initial-scale=1')
+        title 2FAuth | SingIn
+        link(rel='stylesheet', href='/public/css/bulma.min.css')
+    body
+        nav.navbar.has-shadow.is-primary(role="navigation", aria-label="main navigation")
+            .container
+        .hero
+            .hero-body
+                .container
+                    .columns.is-centered.is-container
+                        .column.is-7.is-half.is-paddingless
+                            .box.is-paddingless
+                                nav.level.has-background-light.has-shadow(style="padding:0.5em 0 0.5em 0;")
+                                    .level-item.has-text-centered(style="")
+                                        h1.title 2FAuth | Registrarse
+                                        //figure.image.is-48x48
+                                            //img(src="/public/img/logo3.png", width="35", height="35")
+                                //.content(style="text-align: center;")
+                                    //h2.subtitle.has-text-centered(style="display:inline-block; border-bottom: 3px #363636 solid; margin-bottom: 0;") Iniciar
+                                .content(style="padding-left: 1.5em; padding-right: 1.5em; padding-bottom: 1.5em;")
+                                    form(action="")
+                                        .field.is-horizontal
+                                            .field-label.is-normal
+                                                label.label(for="") Nombres:
+                                            .field-body
+                                                .field
+                                                    p.control
+                                                        input.input(type="text", name="name", placeholder="Nombres", autofocus="autofocus")
+                                                .field
+                                                    p.control
+                                                        input.input(type="text", name="lastname", placeholder="Apellidos")
+                                        
+                                        .field.is-horizontal
+                                            .field-label.is-normal
+                                                label.label(for="email") Email:
+                                            .field-body
+                                                .field
+                                                    .control
+                                                        input.input(type="text", name="email", placeholder="email@gmail.com")
+
+                                        .field.is-horizontal
+                                            .field-label.is-normal
+                                                label.label(for="birthday") Cumpleaños:
+                                            .field-body
+                                                .field
+                                                    p.control
+                                                        input.input(type="date", name="birthday", placeholder="Fecha nacimiento")
+                                                .field
+                                                    p.control.has-icons-left
+                                                        input.input(type="tel", name="phone", placeholder="53012959")
+                                                        span.icon.is-smaill.is-left
+                                                            i.fas.fa-phone
+                                        .field.is-horizontal
+                                            .field-label.is-normal
+                                                label.label(for="p_username") Usuario:
+                                            .field-body
+                                                .field
+                                                    .control
+                                                        input.input(type="text", name="p_username", placeholder="Nombre de usuario")
+                                        .field.is-horizontal
+                                            .field-label.is-normal
+                                                label.label(for="p_password") Contraseña:
+                                            .field-body
+                                                .field
+                                                    .control
+                                                        input.input(type="password", name="p_password", placeholder="********")
+
+
+                                        br
+                                        .columns.is-centered.is-mobile
+                                            .column.is-6.is-half.is-paddingless
+                                                button.button.is-fullwidth.is-danger.is-rounded
+                                                        span.icon
+                                                            i.fas.fa-save
+                                                        span Crear
+                                        hr
+                                        article.message.is-link
+                                            .message-body
+                                                p Registrate...
+                                        
+                                 
+                                
+        block scripts
+            script(src='/public/js/jquery.js')
+            script(src='/public/js/all.js')
+            script(src='/public/js/script.js')
+            

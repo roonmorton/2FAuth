@@ -2,7 +2,7 @@ const express = require('express');
 const app = require('./config/server');
 const mysql = require('./config/db-mysql');
 const path = require('path');
-app.set('views',path.join(__dirname, 'views'));
+app.set('views', path.join(__dirname, 'views'));
 //app.use('/public', express.static('public'));
 
 app.use('/public', express.static(__dirname + '/public'));
@@ -41,11 +41,11 @@ app.route("/api/v1/sendEmail")
             html:
                 '<div style=" margin:0; padding: 0; width: 100%; height: 100%;">' +
                 '<h1>Nuevo mensaje para Es Davila</h1><p>' +
-                'De: <a href="mailto:'+ (req.body.email || '' ) +'">'+ (req.body.email || '') +'</a> <strong>'+(req.body.names || '')+'</strong>' +
+                'De: <a href="mailto:' + (req.body.email || '') + '">' + (req.body.email || '') + '</a> <strong>' + (req.body.names || '') + '</strong>' +
                 '</p><p>' +
-                'Telefono: <strong>'+(req.body.phone || '') +'</strong>' +
+                'Telefono: <strong>' + (req.body.phone || '') + '</strong>' +
                 '</p><p>' +
-                'Contacta por: <strong>'+(req.body.subject)+'</strong>' +
+                'Contacta por: <strong>' + (req.body.subject) + '</strong>' +
                 '</p><p>' +
                 '<strong>Mensaje:</strong>' +
                 '<br>' + (req.body.message || 'No hay mensaje.') +
@@ -69,14 +69,19 @@ app.route("/api/v1/sendEmail")
 
 app.get('/',
     (req, res) => {
-        res.render('index',{
+        res.render('index', {
             title: 'Inicio'
         });
     });
 
-    app.get('/login',
+app.get('/login',
     (req, res) => {
         res.render('login');
+    });
+
+app.get('/signin',
+    (req, res) => {
+        res.render('signin');
     });
 
 // Start the server
