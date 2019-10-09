@@ -1,0 +1,28 @@
+doctype html
+html
+    head
+        meta(charset='utf-8')
+        meta(name='viewport', content='width=device-width, initial-scale=1')
+        title 2FAuth | LogIn
+        link(rel='stylesheet', href='/public/css/bulma.min.css')
+    body
+        nav.navbar.has-shadow.is-primary(role="navigation", aria-label="main navigation")
+            .container
+        .hero
+            .hero-body
+                .container
+                    .columns.is-centered
+                        .column.is-half.is-paddingless
+                            .box.is-paddingless
+                                nav.level.has-background-light.has-shadow(style="padding:0.5em 0 0.5em 0;")
+                                    .level-item.has-text-centered
+                                        figure.image.is-48x48
+                                            img(src="/public/img/logo3.png", width="35", height="35")
+                                .container
+                                    p Lorem ipsum dolor sit amet, consectetur adipisicing elit. Corporis rerum quae dignissimos cupiditate fugiat? Voluptatibus perferendis facere rerum eos consequatur earum, omnis blanditiis sit veniam! Nam nobis nesciunt sequi nemo!
+                                
+        block scripts
+            script(src='/public/js/jquery.js')
+            script(src='/public/js/all.js')
+            script(src='/public/js/script.js')
+            

@@ -1,0 +1,41 @@
+doctype html
+html
+    head
+        meta(charset='utf-8')
+        meta(name='viewport', content='width=device-width, initial-scale=1')
+        title 2FAuth | #{title}
+        link(rel='stylesheet', href='/public/css/bulma.min.css')
+    body
+        nav.navbar.has-shadow(role="navigation", aria-label="main navigation")
+            .container
+                .navbar-brand
+                    a.navbar-item(href="/")
+                        img(src="/public/img/logo3.png", width="35", height="35")
+                    a.navbar-burger(role="button", arial-label="menu", aria-expanded="false")
+                        span(aria-hidden="true")
+                        span(aria-hidden="true")
+                        span(aria-hidden="true")
+                .navbar-menu
+                    .navbar-end
+                        .navbar-item.has-dropdown.is-hoverable
+                            a.navbar-link Usuario
+                            .navbar-dropdown.is-right
+                                a.navbar-item(href="#")
+                                    span.icon.has-text-link
+                                        i.fas.fa-wrench 
+                                    p  Configurar
+                                a.navbar-item(href="#")
+                                    span.icon.has-text-danger
+                                        i.fas.fa-power-off 
+                                    p  Salir
+
+
+        block content
+        //footer
+        //    #footer
+        //        p some footer content
+        block scripts
+            script(src='/public/js/jquery.js')
+            script(src='/public/js/all.js')
+            script(src='/public/js/script.js')
+            
