@@ -1,13 +1,28 @@
 extends layout
-
 block content
     .hero.is-shadow
         .hero-body
             .container
                 .notification
-                    h1.title Bienvenido
-                    h2.subtitle Ronaldo Quevedo
-                    p Lorem ipsum, dolor sit amet consectetur adipisicing elit. Aspernatur possimus nulla eos sint velit maiores optio vitae eaque illum cupiditate. Doloribus impedit rerum porro incidunt quidem! Fuga dolore minima eius.
+                    //h1.title Bienvenido
+                    
+                    
+                    article.message.is-info
+                        .message-header
+                            p Bienvenido
+                        .message-body
+                            h2.subtitle Ronaldo Quevedo
+                            p 
+                                strong Seguridad configurada
+                            .content
+                                ul
+                                    li 
+                                        .field
+                                            input.switch.is-rtl(type="checkbox", checked="checked", name="checkbox", id="switchColorDefault")
+                                            label(for="checkbox") Verificación por correo electronico
+                            
+                            
+
                     hr
                     .field.is-grouped
                         .control

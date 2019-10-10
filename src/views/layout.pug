@@ -4,8 +4,11 @@ html
         meta(charset='utf-8')
         meta(name='viewport', content='width=device-width, initial-scale=1')
         title 2FAuth | #{title}
+        link(rel='stylesheet', href='/public/css/bulma-switch.min.css')
+
         link(rel='stylesheet', href='/public/css/bulma.min.css')
-    body.has-background-grey-lighter 
+
+    body
         nav.navbar.has-shadow(role="navigation", aria-label="main navigation")
             .container
                 .navbar-brand
@@ -28,8 +31,6 @@ html
                                     span.icon.has-text-danger
                                         i.fas.fa-power-off 
                                     p  Salir
-
-
         block content
         //footer
         //    #footer
