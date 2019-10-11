@@ -1,0 +1,46 @@
+doctype html
+html
+    head
+        meta(charset='utf-8')
+        meta(name='viewport', content='width=device-width, initial-scale=1')
+        title 2FAuth | Confirmar
+        link(rel='stylesheet', href='/public/css/bulma.min.css')
+    body
+        nav.navbar.has-shadow.is-primary(role="navigation", aria-label="main navigation")
+            .container
+        .hero
+            .hero-body
+                .container
+                    .columns.is-centered.is-container
+                        .column.is-6.is-half.is-paddingless
+                            .box.is-paddingless
+                                nav.level.has-background-light.has-shadow(style="padding:0.5em 0 0.5em 0;")
+                                    .level-item.has-text-centered
+                                        figure.image.is-48x48
+                                            img(src="/public/img/logo3.png", width="35", height="35")
+                                .content(style="padding-left: 1.5em; padding-right: 1.5em; padding-bottom: 1.5em;")
+                                    article.message.is-info
+                                            .message-body
+                                                p Se ha enviado un código a tu correo 
+                                                    strong ro*****@***l.com 
+                                                    #{", para acceder confirmalo."}  
+                                    form(action="")
+                                        .field
+                                            .field
+                                                p.control.has-icons-left 
+                                                    input.input.is-rounded.is-medium(name="username", id="username", type="text",autofocus="autofocus")
+                                                    span.icon.is-small.is-left
+                                                        i.fas.fa-keyboard
+                                        br
+                                        .columns.is-centered.is-mobile
+                                            .column.is-8.is-half.is-paddingless
+                                                button.button.is-fullwidth.is-success.is-rounded
+                                                        span.icon
+                                                            i.fas.fa-check-square
+                                                        span Validar
+                                        hr                     
+        block scripts
+            script(src='/public/js/jquery.js')
+            script(src='/public/js/all.js')
+            script(src='/public/js/script.js') 
+            

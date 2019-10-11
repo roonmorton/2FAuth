@@ -2,19 +2,35 @@ const express = require('express');
 const app = require('./config/server');
 const mysql = require('./config/db-mysql');
 const path = require('path');
+const session = require('express-session');
+var nodemailer = require('nodemailer'); // email sender function 
+const session_middleware = require('./app/middlewares/session');
 app.set('views', path.join(__dirname, 'views'));
 //app.use('/public', express.static('public'));
+
+const security = require('./app/routes/security')(express, mysql);
+const config = require('./app/routes/config')(express, mysql);
+
+
+app.use(session({
+    secret: process.env.SECRET,
+    resave: false,
+    saveUninitialized: false
+}));
 
 app.use('/public', express.static(__dirname + '/public'));
 
 //const response = require('./config/my-response');
 //const auth = require('./app/midlewares/auth')(mysql);
 
-var nodemailer = require('nodemailer'); // email sender function 
+
 
 
 
 /* Routes modules */
+
+app.use(security);
+app.use(session_middleware, config);
 
 
 app.route("/api/v1/sendEmail")
@@ -65,24 +81,33 @@ app.route("/api/v1/sendEmail")
             }
         });
     });
-
+ 
 
 app.get('/',
     (req, res) => {
+       //req.session.user_id = '00021';
+        console.log(req.session);
         res.render('index', {
-            title: 'Inicio'
+            title: 'Inicio',
+            idUser: req.session.user_id,
+            fullname: req.session.user_fullname
         });
     });
 
-app.get('/login',
+/* app.get('/login',
     (req, res) => {
         res.render('login');
     });
-
-app.get('/signin',
+app.post('/login',
     (req, res) => {
-        res.render('signin');
-    });
+
+        //res.render('login');
+    }); */
+
+
+
+
+
 
 // Start the server
 app.listen(app.get('port'),

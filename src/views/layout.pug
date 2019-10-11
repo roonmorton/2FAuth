@@ -4,12 +4,15 @@ html
         meta(charset='utf-8')
         meta(name='viewport', content='width=device-width, initial-scale=1')
         title 2FAuth | #{title}
-        link(rel='stylesheet', href='/public/css/bulma-switch.min.css')
 
         link(rel='stylesheet', href='/public/css/bulma.min.css')
+        link(rel='stylesheet', href='/public/css/bulma-checkradio.min.css')
+        link(rel='stylesheet', href='/public/css/alertify.min.css')
+        link(rel='stylesheet', href='/public/css/default.min.css')
+
 
     body
-        nav.navbar.has-shadow(role="navigation", aria-label="main navigation")
+        nav.navbar.has-shadow.is-medium(role="navigation", aria-label="main navigation")
             .container
                 .navbar-brand
                     a.navbar-item(href="/")
@@ -21,13 +24,13 @@ html
                 .navbar-menu
                     .navbar-end
                         .navbar-item.has-dropdown.is-hoverable
-                            a.navbar-link Usuario
+                            a.navbar-link #{fullname}
                             .navbar-dropdown.is-right
-                                a.navbar-item(href="#")
+                                a.navbar-item(href="/config")
                                     span.icon.has-text-link
                                         i.fas.fa-wrench 
                                     p  Configurar
-                                a.navbar-item(href="#")
+                                a.navbar-item(href="/logout")
                                     span.icon.has-text-danger
                                         i.fas.fa-power-off 
                                     p  Salir
@@ -39,4 +42,6 @@ html
             script(src='/public/js/jquery.js')
             script(src='/public/js/all.js')
             script(src='/public/js/script.js')
+            script(src='/public/js/alertify.min.js')
+
             

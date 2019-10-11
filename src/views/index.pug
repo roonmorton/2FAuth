@@ -5,28 +5,24 @@ block content
             .container
                 .notification
                     //h1.title Bienvenido
-                    
-                    
                     article.message.is-info
                         .message-header
                             p Bienvenido
                         .message-body
-                            h2.subtitle Ronaldo Quevedo
+                            h2.subtitle Ronaldo Quevedo || #{idUser}
                             p 
-                                strong Seguridad configurada
+                                strong Configuraciones
                             .content
                                 ul
                                     li 
                                         .field
-                                            input.switch.is-rtl(type="checkbox", checked="checked", name="checkbox", id="switchColorDefault")
-                                            label(for="checkbox") Verificación por correo electronico
-                            
-                            
+                                            input.is-checkradio(type="checkbox", checked="checked", name="exampleCheckbox", id="exampleCheckbox", style="border: .1rem solid #00d1b2;border-color: #00d1b2!important;", onclick="this.checked = !this.checked")
+                                            label(for="exampleCheckbox") Verificación por correo electronico
 
                     hr
                     .field.is-grouped
                         .control
-                            a.button.is-danger(href="#") 
+                            a.button.is-danger(href="/config") 
                                 span.icon.has-text-white
                                     i.fas.fa-power-off 
                                 p  Configurar

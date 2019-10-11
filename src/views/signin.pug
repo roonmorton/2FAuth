@@ -22,14 +22,14 @@ html
                                 //.content(style="text-align: center;")
                                     //h2.subtitle.has-text-centered(style="display:inline-block; border-bottom: 3px #363636 solid; margin-bottom: 0;") Iniciar
                                 .content(style="padding-left: 1.5em; padding-right: 1.5em; padding-bottom: 1.5em;")
-                                    form(action="")
+                                    form(method="POST")
                                         .field.is-horizontal
                                             .field-label.is-normal
                                                 label.label(for="") Nombres:
                                             .field-body
                                                 .field
                                                     p.control
-                                                        input.input(type="text", name="name", placeholder="Nombres", autofocus="autofocus")
+                                                        input.input(required="required",type="text", name="name", placeholder="Nombres", autofocus="autofocus", value='{user.name}')
                                                 .field
                                                     p.control
                                                         input.input(type="text", name="lastname", placeholder="Apellidos")
@@ -40,7 +40,7 @@ html
                                             .field-body
                                                 .field
                                                     .control
-                                                        input.input(type="text", name="email", placeholder="email@gmail.com")
+                                                        input.input(required="required", type="text", name="email", placeholder="email@gmail.com")
 
                                         .field.is-horizontal
                                             .field-label.is-normal
@@ -60,14 +60,14 @@ html
                                             .field-body
                                                 .field
                                                     .control
-                                                        input.input(type="text", name="p_username", placeholder="Nombre de usuario")
+                                                        input.input(required="required", type="text", name="p_username", placeholder="Nombre de usuario")
                                         .field.is-horizontal
                                             .field-label.is-normal
                                                 label.label(for="p_password") Contraseña:
                                             .field-body
                                                 .field
                                                     .control
-                                                        input.input(type="password", name="p_password", placeholder="********")
+                                                        input.input(required="required", type="password", name="p_password", placeholder="********")
 
 
                                         br

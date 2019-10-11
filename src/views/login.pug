@@ -19,7 +19,7 @@ html
                                         figure.image.is-48x48
                                             img(src="/public/img/logo3.png", width="35", height="35")
                                 .content(style="text-align: center;")
-                                    h2.subtitle.has-text-centered 2FAuth | Acceder
+                                    h2.subtitle.has-text-centered Iniciar Sesión
                                 .content(style="padding-left: 1.5em; padding-right: 1.5em; padding-bottom: 1.5em;")
                                     form(action="")
                                         .field
@@ -46,7 +46,10 @@ html
                                         hr
                                         article.message.is-info
                                             .message-body
-                                                a(href="#") Olvidaste tu contraseña?                       
+                                                a.button.is-text(href="/signin") 
+                                                    span.icon
+                                                        i.fas.fa-users
+                                                    span Crea tu usuario                     
         block scripts
             script(src='/public/js/jquery.js')
             script(src='/public/js/all.js')

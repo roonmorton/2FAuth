@@ -16,7 +16,7 @@ app.set('port', process.env.PORTAPP || 3000);
 
 /* Middlewares */
 
-
+app.use(bodyParser.urlencoded({ extended: false }))
 //app.set('views',path.join('/', 'views'));
 
 app.set('view engine', 'pug');
