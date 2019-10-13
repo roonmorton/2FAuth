@@ -21,9 +21,9 @@ html
                                 .content(style="padding-left: 1.5em; padding-right: 1.5em; padding-bottom: 1.5em;")
                                     article.message.is-info
                                             .message-body
-                                                p Se ha enviado un código a tu correo 
-                                                    strong ro*****@***l.com 
-                                                    #{", para acceder confirmalo."}  
+                                                p Se ha enviado un código de confirmación al correo 
+                                                    strong ro*****@***l.com,     
+                                                    | confirmalo para poder acceder al sistema. 
                                     form(action="")
                                         .field
                                             .field
@@ -38,7 +38,11 @@ html
                                                         span.icon
                                                             i.fas.fa-check-square
                                                         span Validar
-                                        hr                     
+                                        article.message.is-danger
+                                            .message-body(style="padding-top: .5em; padding-bottom: .5em")
+                                                ul(style="margin-top: 0")
+                                                    li Código invalido
+                                                            
         block scripts
             script(src='/public/js/jquery.js')
             script(src='/public/js/all.js')

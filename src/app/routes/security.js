@@ -81,7 +81,7 @@ module.exports = (express, mysql) => {
                     res.render('login');
                 }
             })
-        .post( 
+        .post(
             (req, res) => {
                 //console.log(req.body);
 
@@ -90,13 +90,14 @@ module.exports = (express, mysql) => {
                     params: {
                         id: req.params.id,
                         fields: ['idUser', 'username'],
-                        where: "email='" + req.body.email + "' AND password = '" + req.body.password + "'"
+                        where: "(username='"+ req.body.email +"' OR email='" + req.body.email + "') AND password = '" + req.body.password + "'"
                     }
                 })
                     .then(
                         result => {
-                            if (result.counter > 0) {
+                            if (result) {
                                 //Usuario correcto Login
+                                req.session.user_id = result.idUser;
                                 mysql.query(
                                     "SELECT TAUth.idTypeAuth, " +
                                     "TAUth.code, " +
@@ -148,9 +149,10 @@ module.exports = (express, mysql) => {
                                         })
                                     .catch(
                                         err => {
+
                                             //Ocurrio un error devolver
-                                            response.send(res, null, "A ocurrido un error", "Error", err);
-                                            console.log(err);
+                                            //response.send(res, null, "A ocurrido un error", "Error", err);
+                                            //console.log(err);
                                         });
                                 /* end Auth Type */
 
@@ -172,7 +174,7 @@ module.exports = (express, mysql) => {
 
 
 
-            router.route('/confirm')
+    router.route('/confirm')
         .get(
             (req, res) => {
                 res.render('check');
