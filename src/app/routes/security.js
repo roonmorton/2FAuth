@@ -78,7 +78,9 @@ module.exports = (express, mysql) => {
                 if (req.session.user_id) {
                     res.redirect('/');
                 } else {
-                    res.render('login');
+                    res.render('login', {
+                        errors: ["usuario/Contraseña Incorrecta"]
+                    });
                 }
             })
         .post(
@@ -90,7 +92,7 @@ module.exports = (express, mysql) => {
                     params: {
                         id: req.params.id,
                         fields: ['idUser', 'username'],
-                        where: "(username='"+ req.body.email +"' OR email='" + req.body.email + "') AND password = '" + req.body.password + "'"
+                        where: "(username='" + req.body.email + "' OR email='" + req.body.email + "') AND password = '" + req.body.password + "'"
                     }
                 })
                     .then(
@@ -149,7 +151,7 @@ module.exports = (express, mysql) => {
                                         })
                                     .catch(
                                         err => {
-
+                                            res.redirect('/');
                                             //Ocurrio un error devolver
                                             //response.send(res, null, "A ocurrido un error", "Error", err);
                                             //console.log(err);
@@ -159,16 +161,21 @@ module.exports = (express, mysql) => {
                             } else {
                                 // Usuario Incorrecto
                                 res.render('login', {
-                                    username: req.body.username
+                                    username: req.body.username,
+                                    errors: [
+                                        'Usuario/Contraseña incorrecto.'
+                                    ]
                                 });
                             }
                         })
                     .catch(
                         err => {
-                            console.log("error");
-
-                            response.send(res, null, "A ocurrido un error", "Error", err);
-                            console.log(err);
+                            res.render('login', {
+                                username: req.body.username,
+                                errors: [
+                                    'A ocurrido un error, intentalo mas tarde'
+                                ]
+                            });
                         });
             });
 
