@@ -12,13 +12,25 @@ module.exports = (express, mysql) => {
                 if (req.session.user_id) {
                     res.redirect('/');
                 } else {
-                    res.render('signin');
+                    res.render('signin',
+                    {
+                        obj: {},
+                        errors: []
+                    });
                 }
             })
         .post( /* Insertar */
             (req, res) => {
                 console.log(req.body);
-
+                var objTemp =  {
+                    name: req.body.name,
+                    lastname: req.body.description || '',
+                    email: req.body.email,
+                    phone: req.body.phone,
+                    birthday: req.body.birthday || null,
+                    username: req.body.p_username,
+                    password: req.body.p_password
+                }; 
                 mysql.count({
                     tableModel: tableModel,
                     conditions: {
@@ -29,19 +41,15 @@ module.exports = (express, mysql) => {
                         result => {
                             if (result.counter > 0) {
                                 console.log("usuario ya existe");
+                                res.render('signin', {
+                                    obj: objTemp,
+                                    errors: ["Usuario/Correo ya existe..."]
+                                });
                                 //Usuario ya existe
-                                response.send(res, null, 'Etiqueta  ya existe...', "Error", {});
+                                //response.send(res, null, 'Etiqueta  ya existe...', "Error", {});
                             } else {
                                 mysql.save({
-                                    obj: {
-                                        name: req.body.name,
-                                        lastname: req.body.description || '',
-                                        email: req.body.email,
-                                        phone: req.body.phone,
-                                        birthday: req.body.birthday || null,
-                                        username: req.body.p_username,
-                                        password: req.body.p_password
-                                    },
+                                    obj: objTemp,
                                     tableModel: tableModel
                                 })
                                     .then(
@@ -56,20 +64,26 @@ module.exports = (express, mysql) => {
                                     .catch(
                                         err => {
                                             console.log(err);
-
-                                            response.send(res, null, "A ocurrido un error", "Error", err);
+                                            res.render('signin', {
+                                                obj: objTemp,
+                                                errors: ["A ocurrido un error, intente mas tarde"]
+                                            });
+                                            //response.send(res, null, "A ocurrido un error", "Error", err);
                                         });
                             }
                         })
                     .catch(
                         err => {
                             console.log("error");
-
-                            response.send(res, null, "A ocurrido un error", "Error", err);
-                            console.log(err);
+                            res.render('signin', {
+                                obj: objTemp,
+                                errors: ["A ocurrido un error, intente mas tarde"]
+                            });
+                            //response.send(res, null, "A ocurrido un error", "Error", err);
+                            //console.log(err);
                         });
             });
-
+ 
 
     router.route('/login')
         .get(

@@ -29,10 +29,10 @@ html
                                             .field-body
                                                 .field
                                                     p.control
-                                                        input.input(required="required",type="text", name="name", placeholder="Nombres", autofocus="autofocus", value='{user.name}')
+                                                        input.input(required="required",type="text", name="name", placeholder="Nombres", autofocus="autofocus" , value=obj.name ? obj.name : '')
                                                 .field
                                                     p.control
-                                                        input.input(type="text", name="lastname", placeholder="Apellidos")
+                                                        input.input(type="text", name="lastname", value=obj.lastname ? obj.lastname : '', placeholder="Apellidos")
                                         
                                         .field.is-horizontal
                                             .field-label.is-normal
@@ -40,7 +40,7 @@ html
                                             .field-body
                                                 .field
                                                     .control
-                                                        input.input(required="required", type="text", name="email", placeholder="email@gmail.com")
+                                                        input.input(required="required", type="text", name="email", value=obj.email ? obj.email : '', placeholder="email@gmail.com")
 
                                         .field.is-horizontal
                                             .field-label.is-normal
@@ -48,10 +48,10 @@ html
                                             .field-body
                                                 .field
                                                     p.control
-                                                        input.input(type="date", name="birthday", placeholder="Fecha nacimiento")
+                                                        input.input(type="date", name="birthday", value=obj.birthday ? obj.birthday : '', placeholder="Fecha nacimiento")
                                                 .field
                                                     p.control.has-icons-left
-                                                        input.input(type="tel", name="phone", placeholder="53012959")
+                                                        input.input(type="tel", name="phone", value=obj.phone ? obj.phone : '', placeholder="53012959")
                                                         span.icon.is-smaill.is-left
                                                             i.fas.fa-phone
                                         .field.is-horizontal
@@ -60,7 +60,7 @@ html
                                             .field-body
                                                 .field
                                                     .control
-                                                        input.input(required="required", type="text", name="p_username", placeholder="Nombre de usuario")
+                                                        input.input(required="required", type="text", name="p_username", value=obj.p_username ? obj.p_username : '', placeholder="Nombre de usuario")
                                         .field.is-horizontal
                                             .field-label.is-normal
                                                 label.label(for="p_password") Contraseña:
@@ -77,8 +77,14 @@ html
                                                         span.icon
                                                             i.fas.fa-save
                                                         span Crear
-                                        hr
-                                        article.message.is-link
+                                        if errors.length > 0
+                                            article.message.is-danger
+                                                .message-body(style="padding-top: .5em; padding-bottom: .5em")
+                                                    ul(style="margin-top: 0")
+                                                        each err in errors 
+                                                            li= err
+                                        //hr
+                                        //article.message.is-link
                                             .message-body
                                                 p Registrate...                     
         block scripts
