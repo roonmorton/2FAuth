@@ -2,6 +2,7 @@ var tableModel = {
     tableName: 'TBL_User',
     idAttribute: 'idUser'
 };
+const sha1 = require('sha1');
 module.exports = (express, mysql) => {
     const router = express.Router();
 
@@ -13,28 +14,28 @@ module.exports = (express, mysql) => {
                     res.redirect('/');
                 } else {
                     res.render('signin',
-                    {
-                        obj: {},
-                        errors: []
-                    });
+                        {
+                            obj: {},
+                            errors: []
+                        });
                 }
             })
         .post( /* Insertar */
             (req, res) => {
                 console.log(req.body);
-                var objTemp =  {
+                var objTemp = {
                     name: req.body.name,
-                    lastname: req.body.description || '',
+                    lastname: req.body.lastname,
                     email: req.body.email,
                     phone: req.body.phone,
                     birthday: req.body.birthday || null,
-                    username: req.body.p_username,
-                    password: req.body.p_password
-                }; 
+                    //username: req.body.email,
+                    password: sha1(req.body.p_password)
+                };
                 mysql.count({
                     tableModel: tableModel,
                     conditions: {
-                        where: "email = '" + req.body.email + "' OR username = '" + req.body.username + "'"
+                        where: "email = '" + req.body.email + "'"
                     }
                 })
                     .then(
@@ -53,10 +54,10 @@ module.exports = (express, mysql) => {
                                     tableModel: tableModel
                                 })
                                     .then(
-                                        result => {
+                                        result => { 
                                             req.session.user_id = result.idUser;
-                                            req.session.user_username = result.username;
-                                            req.session.user_fullname = result.name /* + ' ' + (result.lastname || '') */
+                                            req.session.user_username = result.email;
+                                            req.session.user_fullname = result.name;  + ' ' + (result.lastname || '') 
                                             res.redirect('/');
                                             //console.log(result);
                                             //response.send(res, result, 'Usuario Creado', 'Tag add');
@@ -83,30 +84,28 @@ module.exports = (express, mysql) => {
                             //console.log(err);
                         });
             });
- 
+
 
     router.route('/login')
         .get(
             (req, res) => {
-                console.log(req.session.user_id);
-                if (req.session.user_id) {
-                    res.redirect('/');
-                } else {
                     res.render('login', {
-                        errors: ["usuario/Contraseña Incorrecta"]
+                        errors: []
                     });
-                }
             })
         .post(
             (req, res) => {
                 //console.log(req.body);
 
                 mysql.find({
-                    tableModel: tableModel,
+                    tableModel: {
+                        tableName: 'TBL_User',
+                        idAttribute: 'email'
+                    },
                     params: {
-                        id: req.params.id,
-                        fields: ['idUser', 'username'],
-                        where: "(username='" + req.body.email + "' OR email='" + req.body.email + "') AND password = '" + req.body.password + "'"
+                        id: req.body.username,
+                        fields: ['idUser', 'email', 'name', 'lastname'],
+                        where: "password = '" + sha1(req.body.password) + "'"
                     }
                 })
                     .then(
@@ -114,13 +113,18 @@ module.exports = (express, mysql) => {
                             if (result) {
                                 //Usuario correcto Login
                                 req.session.user_id = result.idUser;
+                                req.session.username = result.email;
+                                req.session.user_fullname = result.name + ' ' + ( result.lastname || '');
+                                
+                                /* Verificación doble autenticación */
                                 mysql.query(
                                     "SELECT TAUth.idTypeAuth, " +
                                     "TAUth.code, " +
                                     "TAUth.name, " +
                                     "TAUth.status, " +
                                     "u.username, " +
-                                    "u.idUser  FROM TBL_User u " +
+                                    "u.idUser, " +
+                                    "u.email FROM TBL_User u " +
                                     "INNER JOIN TBL_UserAuthType UAuth " +
                                     "ON u.idUser = UAuth.idUser " +
                                     "INNER JOIN TBL_TypeAuth TAUth " +
@@ -128,37 +132,10 @@ module.exports = (express, mysql) => {
                                     "WHERE TAUth.status = 1 AND u.idUser = " + req.session.user_id)
                                     .then(
                                         result => {
-                                            console.log(result);
+                                            //console.log(result);
                                             if (result.length > 0) { //Encontro verificacion habilitada
-
-                                                /* mysql.query(
-                                                    "SELECT TAUth.idTypeAuth, " +
-                                                    "TAUth.code, " +
-                                                    "TAUth.name, " +
-                                                    "TAUth.status, " +
-                                                    "u.username, " +
-                                                    "u.idUser  FROM TBL_User u " +
-                                                    "INNER JOIN TBL_UserAuthType UAuth " +
-                                                    "ON u.idUser = UAuth.idUser " +
-                                                    "INNER JOIN TBL_TypeAuth TAUth " +
-                                                    "ON TAUth.idTypeAuth = UAuth.idTypeAuth " +
-                                                    "WHERE AND u.idUser = " + req.session.user_id)
-                                                    .then(
-                                                        result => {
-                                                            console.log(result);
-                                                                res.render('check', {
-                                                                    auths: result
-                                                                });
-                                                        })
-                                                    .catch(
-                                                        err => {
-                                                            //Ocurrio un error devolver
-                                                            response.send(res, null, "A ocurrido un error", "Error", err);
-                                                            console.log(err);
-                                                        }); */
-                                                /* res.render('check',{
-                                                    auths: result
-                                                }); */
+                                                req.session.TwoFA = result.idUser;
+                                                res.redirect('/');
                                             } else {
                                                 res.redirect('/');
                                             }
@@ -184,6 +161,7 @@ module.exports = (express, mysql) => {
                         })
                     .catch(
                         err => {
+                            console.log(err);
                             res.render('login', {
                                 username: req.body.username,
                                 errors: [
@@ -232,7 +210,7 @@ module.exports = (express, mysql) => {
                                     .then(
                                         result => {
                                             req.session.user_id = result.idUser;
-                                            req.session.user_username = result.username;
+                                            req.session.user_username = result.email;
                                             req.session.user_fullname = result.name /* + ' ' + (result.lastname || '') */
                                             res.redirect('/');
                                             //console.log(result);

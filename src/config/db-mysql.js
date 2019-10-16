@@ -203,7 +203,7 @@ const DBMysql = {
             return new Promise(function (resolve, reject) {
                 if (!data.params.id) reject(new Error('mysql-model: No id passed or set'));
                 if (!poolConnection) reject(new Error('mysql-model: No connection'));
-                var q = "SELECT " + fields + " FROM " + data.tableModel.tableName + " WHERE " + data.tableModel.idAttribute + "=" + data.params.id;
+                var q = "SELECT " + fields + " FROM " + data.tableModel.tableName + " WHERE " + data.tableModel.idAttribute + "=" + poolConnection.escape(data.params.id);
                 poolConnection.query(q, function (err, result, fields) {
                     if (err || !result) reject(err);
                     else {

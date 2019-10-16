@@ -29,7 +29,7 @@ app.use('/public', express.static(__dirname + '/public'));
 
 /* Routes modules */
 
-app.use(security);
+app.use(session_middleware,security);
 app.use(session_middleware, config);
 
 

@@ -8,6 +8,10 @@ html
     body
         nav.navbar.has-shadow.is-primary(role="navigation", aria-label="main navigation")
             .container
+                .navbar-brand
+                    a.navbar-item
+                        figure.image.is-32x32
+                            img(src="/public/img/logo3.png", style="max-height: 100% !important;", alt="Es Davila", width="80", height="20")
         .hero
             .hero-body
                 .container
@@ -16,24 +20,25 @@ html
                             .box.is-paddingless
                                 nav.level.has-background-light.has-shadow(style="padding:0.5em 0 0.5em 0;")
                                     .level-item.has-text-centered
-                                        figure.image.is-48x48
+                                        h1.title Registrarse
+                                        //figure.image.is-48x48
                                             img(src="/public/img/logo3.png", width="35", height="35")
-                                .content(style="text-align: center;")
+                                //.content(style="text-align: center;")
                                     h2.subtitle.has-text-centered Iniciar Sesión
                                 .content(style="padding-left: 1.5em; padding-right: 1.5em; padding-bottom: 1.5em;")
-                                    form(action="")
+                                    form(method="POST")
                                         .field
                                             label.label(for="username") Usuario
                                             .field
                                                 p.control.has-icons-left 
-                                                    input.input.is-rounded(name="username", id="username", type="text",autofocus="autofocus" value=username ? username : '')
+                                                    input.input.is-rounded(required, name="username", id="username", type="text",autofocus="autofocus" value=username ? username : '')
                                                     span.icon.is-small.is-left
                                                         i.fas.fa-user
                                         .field
                                             label.label(for="password") Contraseña
                                             .field
                                                 p.control.has-icons-left 
-                                                    input.input.is-rounded(name="password", id="password", type="password")
+                                                    input.input.is-rounded(required, name="password", id="password", type="password")
                                                     span.icon.is-small.is-left
                                                         i.fas.fa-lock
                                         br

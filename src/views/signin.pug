@@ -8,6 +8,10 @@ html
     body
         nav.navbar.has-shadow.is-primary(role="navigation", aria-label="main navigation")
             .container
+                .navbar-brand
+                    a.navbar-item
+                        figure.image.is-32x32
+                            img(src="/public/img/logo3.png", style="max-height: 100% !important;", alt="Es Davila", width="80", height="20")
         .hero
             .hero-body
                 .container
@@ -54,7 +58,7 @@ html
                                                         input.input(type="tel", name="phone", value=obj.phone ? obj.phone : '', placeholder="53012959")
                                                         span.icon.is-smaill.is-left
                                                             i.fas.fa-phone
-                                        .field.is-horizontal
+                                        //.field.is-horizontal
                                             .field-label.is-normal
                                                 label.label(for="p_username") Usuario:
                                             .field-body
@@ -86,7 +90,14 @@ html
                                         //hr
                                         //article.message.is-link
                                             .message-body
-                                                p Registrate...                     
+                                                p Registrate...  
+                                        hr
+                                        article.message.is-info
+                                            .message-body
+                                                a.button.is-text(href="/login") 
+                                                    span.icon
+                                                        i.fas.fa-user-lock
+                                                    span Iniciar sesión                   
         block scripts
             script(src='/public/js/jquery.js')
             script(src='/public/js/all.js')

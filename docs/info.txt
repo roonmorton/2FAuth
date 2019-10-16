@@ -1,0 +1,6 @@
+Cookies
+
+- user_id = idUser
+- user_username = email
+- user_fullname = fullname
+- TwoFA = idUser
