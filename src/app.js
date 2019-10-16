@@ -29,7 +29,7 @@ app.use('/public', express.static(__dirname + '/public'));
 
 /* Routes modules */
 
-app.use(session_middleware,security);
+app.use(session_middleware, security);
 app.use(session_middleware, config);
 
 
@@ -87,6 +87,38 @@ app.get('/',
     (req, res) => {
        //req.session.user_id = '00021';
         console.log(req.session);
+
+        mysql.query(
+            "SELECT TAUth.idTypeAuth, " +
+            "TAUth.code, " +
+            "TAUth.name, " +
+            "TAUth.status, " +
+            "u.username, " +
+            "u.idUser, " +
+            "u.email FROM TBL_User u " +
+            "INNER JOIN TBL_UserAuthType UAuth " +
+            "ON u.idUser = UAuth.idUser " +
+            "INNER JOIN TBL_TypeAuth TAUth " +
+            "ON TAUth.idTypeAuth = UAuth.idTypeAuth " +
+            "WHERE TAUth.status = 1 AND u.idUser = " + req.session.user_id)
+            .then(
+                result => {
+                    //console.log(result);
+                    if (result.length > 0) { //Encontro verificacion habilitada
+                        req.session.TwoFA = result.idUser;
+                        res.redirect('/');
+                    } else {
+                        res.redirect('/');
+                    }
+                })
+            .catch(
+                err => {
+                    res.redirect('/');
+                    //Ocurrio un error devolver
+                    //response.send(res, null, "A ocurrido un error", "Error", err);
+                    //console.log(err);
+                });
+                
         res.render('index', {
             title: 'Inicio',
             idUser: req.session.user_id,
