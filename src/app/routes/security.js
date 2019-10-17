@@ -54,10 +54,10 @@ module.exports = (express, mysql) => {
                                     tableModel: tableModel
                                 })
                                     .then(
-                                        result => { 
+                                        result => {
                                             req.session.user_id = result.idUser;
                                             req.session.user_username = result.email;
-                                            req.session.user_fullname = result.name;  + ' ' + (result.lastname || '') 
+                                            req.session.user_fullname = result.name; + ' ' + (result.lastname || '')
                                             res.redirect('/');
                                             //console.log(result);
                                             //response.send(res, result, 'Usuario Creado', 'Tag add');
@@ -89,9 +89,9 @@ module.exports = (express, mysql) => {
     router.route('/login')
         .get(
             (req, res) => {
-                    res.render('login', {
-                        errors: []
-                    });
+                res.render('login', {
+                    errors: []
+                });
             })
         .post(
             (req, res) => {
@@ -114,8 +114,8 @@ module.exports = (express, mysql) => {
                                 //Usuario correcto Login
                                 req.session.user_id = result.idUser;
                                 req.session.username = result.email;
-                                req.session.user_fullname = result.name + ' ' + ( result.lastname || '');
-                                
+                                req.session.user_fullname = result.name + ' ' + (result.lastname || '');
+
                                 /* Verificación doble autenticación */
                                 mysql.query(
                                     "SELECT TAUth.idTypeAuth, " +
@@ -142,7 +142,12 @@ module.exports = (express, mysql) => {
                                         })
                                     .catch(
                                         err => {
-                                            res.redirect('/');
+                                            res.render('login', {
+                                                username: req.body.username,
+                                                errors: [
+                                                    'A ocurrido un error, intentalo mas tarde'
+                                                ]
+                                            });
                                             //Ocurrio un error devolver
                                             //response.send(res, null, "A ocurrido un error", "Error", err);
                                             //console.log(err);
