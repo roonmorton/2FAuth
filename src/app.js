@@ -89,41 +89,41 @@ app.get('/',
         console.log(req.session);
 
         mysql.query(
-            "SELECT TAUth.idTypeAuth, " +
-            "TAUth.code, " +
-            "TAUth.name, " +
-            "TAUth.status, " +
-            "u.username, " +
-            "u.idUser, " +
-            "u.email FROM TBL_User u " +
-            "INNER JOIN TBL_UserAuthType UAuth " +
-            "ON u.idUser = UAuth.idUser " +
-            "INNER JOIN TBL_TypeAuth TAUth " +
-            "ON TAUth.idTypeAuth = UAuth.idTypeAuth " +
-            "WHERE TAUth.status = 1 AND u.idUser = " + req.session.user_id)
+            "SELECT " 
+            + "TAuth.idTypeAuth,"
+            + "UTAuth.idUserAuthType,"
+            + "TAuth.code,"
+            + "TAuth.description,"
+            + "TAuth.status AuthStatus,"
+            + "UTAuth.status,"
+            + "u.username, "
+            + "u.idUser"
+            + " FROM TBL_TypeAuth TAuth"
+            + " LEFT JOIN TBL_UserTypeAuth UTAuth"
+            + " ON TAuth.idTypeAuth = UTAuth.idTypeAuth"
+            + " LEFT JOIN TBL_User u "
+            + " ON u.idUser = UTAuth.idUser"
+            + " WHERE TAuth.status = 1 AND (UTAuth.idUser IS NULL OR UTAuth.idUser=" + req.session.user_id +")")
             .then(
                 result => {
-                    //console.log(result);
-                    if (result.length > 0) { //Encontro verificacion habilitada
-                        req.session.TwoFA = result.idUser;
-                        res.redirect('/');
-                    } else {
-                        res.redirect('/');
-                    }
+                   // console.log(result);
+                    res.render('index', {
+                        title: 'Inicio',
+                        idUser: req.session.user_id,
+                        fullname: req.session.user_fullname,
+                        auths: result
+                    });
                 })
             .catch(
                 err => {
-                    res.redirect('/');
-                    //Ocurrio un error devolver
-                    //response.send(res, null, "A ocurrido un error", "Error", err);
-                    //console.log(err);
+                    console.log(err);
+                    res.render('index', {
+                        title: 'Inicio',
+                        idUser: req.session.user_id,
+                        fullname: req.session.user_fullname,
+                        auths: []
+                    });
                 });
-                
-        res.render('index', {
-            title: 'Inicio',
-            idUser: req.session.user_id,
-            fullname: req.session.user_fullname
-        });
     });
 
 /* app.get('/login',

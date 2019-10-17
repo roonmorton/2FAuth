@@ -1,7 +1,7 @@
 'use-strict';
 
 $(document).ready(function () {
-    console.log("click");
+    console.log("Ready");
 
     // Check for click events on the navbar burger icon
     $(".navbar-burger").click(function () {
@@ -12,17 +12,38 @@ $(document).ready(function () {
 
     });
 
-    $('#cbox-email').change(
-        e => {
-            var cbox = $(this);
-            if(cbox.prop('checked')){
-                // Chequeada
-            }
-            $(this).prop( "checked", false );
-            console.log("click check");
-            console.log(cbox.prop('checked'));
-            //cbox.prop('checked', true);
-            /* $('#idCheckbox').prop('checked', true);
-            $('#idCheckbox').prop('checked', false); */
-        });
+    window.submitCheckBox = (obj) => {
+        let jObj = $(obj);
+        console.log(obj.checked);
+        alertify.confirm("Esta seguro de habilitar la seguridad?",
+            function () {
+                //console.log(jObj.data('type'));
+                $.post(
+                    '/changeSecurity', {
+                    type: jObj.data('type'),
+                    value: obj.checked,
+                    id: jObj.data('id'),
+                    temp: jObj.data('temp')
+                },
+                    (result, status) => {
+                        //console.log(status);
+                    }).done((data) => {
+                        console.log(data);
+                        if (data.status === true) {
+                            alertify.success('Se ha realizado el cambio...');
+                        } else {
+                            alertify.error('A ocurrido un error, intentar mas tarde...');
+                        }
+                    }).fail((jqxhr, settings, ex) => {
+                        alertify.error('A ocurrido un error, intentar mas tarde...');
+                    });
+                obj.checked = obj.checked;
+            },
+            function () {
+                obj.checked = !obj.checked;
+
+            });
+    }
+
+
 });

@@ -6,6 +6,32 @@ const sha1 = require('sha1');
 module.exports = (express, mysql) => {
     const router = express.Router();
 
+    router.route('/changeSecurity').post(
+        (req, res) => {
+
+            if (req.body.type === 'mail') {
+
+                mysql.query(
+                    "INSERT INTO TBL_UserTypeAuth(idUserAuthType,idTypeAuth,idUser,status) "
+                    + "VALUES(" + req.body.temp + "," + req.body.value + "," + req.session.user_id + "," + (req.body.value === 'true' ? 1 : 0) + ") ON DUPLICATE KEY UPDATE "
+                    + "status=" + (req.body.value === 'true' ? 1 : 0))
+                    .then(
+                        result => {
+                            console.log(result);
+                            res.send({ status: true });
+
+                        })
+                    .catch(
+                        err => {
+                            console.log(err);
+                            res.send({ status: false });
+
+                        });
+            } else {
+                res.send({ status: false });
+            }
+        }
+    );
     router.route('/signin')
         .get(
             (req, res) => {
@@ -54,10 +80,10 @@ module.exports = (express, mysql) => {
                                     tableModel: tableModel
                                 })
                                     .then(
-                                        result => { 
+                                        result => {
                                             req.session.user_id = result.idUser;
                                             req.session.user_username = result.email;
-                                            req.session.user_fullname = result.name;  + ' ' + (result.lastname || '') 
+                                            req.session.user_fullname = result.name; + ' ' + (result.lastname || '')
                                             res.redirect('/');
                                             //console.log(result);
                                             //response.send(res, result, 'Usuario Creado', 'Tag add');
@@ -89,9 +115,9 @@ module.exports = (express, mysql) => {
     router.route('/login')
         .get(
             (req, res) => {
-                    res.render('login', {
-                        errors: []
-                    });
+                res.render('login', {
+                    errors: []
+                });
             })
         .post(
             (req, res) => {
@@ -114,8 +140,8 @@ module.exports = (express, mysql) => {
                                 //Usuario correcto Login
                                 req.session.user_id = result.idUser;
                                 req.session.username = result.email;
-                                req.session.user_fullname = result.name + ' ' + ( result.lastname || '');
-                                
+                                req.session.user_fullname = result.name + ' ' + (result.lastname || '');
+
                                 /* Verificación doble autenticación */
                                 mysql.query(
                                     "SELECT TAUth.idTypeAuth, " +
@@ -125,16 +151,17 @@ module.exports = (express, mysql) => {
                                     "u.username, " +
                                     "u.idUser, " +
                                     "u.email FROM TBL_User u " +
-                                    "INNER JOIN TBL_UserAuthType UAuth " +
+                                    "INNER JOIN TBL_UserTypeAuth UAuth " +
                                     "ON u.idUser = UAuth.idUser " +
                                     "INNER JOIN TBL_TypeAuth TAUth " +
                                     "ON TAUth.idTypeAuth = UAuth.idTypeAuth " +
-                                    "WHERE TAUth.status = 1 AND u.idUser = " + req.session.user_id)
+                                    "WHERE TAUth.status = 1 AND TAUth.code='mail' AND u.idUser = " + req.session.user_id)
                                     .then(
                                         result => {
-                                            //console.log(result);
+                                            console.log(result.length);
+                                            
                                             if (result.length > 0) { //Encontro verificacion habilitada
-                                                req.session.TwoFA = result.idUser;
+                                                req.session.TwoFA = result[0].idUser;
                                                 res.redirect('/');
                                             } else {
                                                 res.redirect('/');

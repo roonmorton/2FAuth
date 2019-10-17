@@ -9,18 +9,26 @@ block content
                         .message-header
                             p Bienvenido
                         .message-body
-                            h2.subtitle #{fullname} || #{idUser}
-                            p 
-                                strong Configuraciones
+                            h1.title #{fullname}
+                            hr
+                            p.content
+                                span.icon.is-medium
+                                    i.fas.fa-shield-alt.fa-lg
+                                span(style="border-bottom: 1px solid;") <strong>Seguridad e inicio de sesión</strong>
                             .content
                                 ul
-                                    li 
+                                    each auth in auths
+                                        li
+                                            .field
+                                                input.is-checkradio(type="checkbox", checked=(auth.status===1 ? "checked" : undefined), id=`chbox${auth.code}`, style="border: .1rem solid #00d1b2;border-color: #00d1b2!important;", onclick="submitCheckBox(this)", data-type=`${auth.code}`, data-id=`${auth.idTypeAuth}`, data-temp=`${auth.idUserAuthType}`)
+                                                label(for=`chbox${auth.code}`) Verificación por #{auth.description}
+                                    //li 
                                         .field
-                                            input.is-checkradio(type="checkbox", checked="checked", name="exampleCheckbox", id="exampleCheckbox", style="border: .1rem solid #00d1b2;border-color: #00d1b2!important;", onclick="this.checked = !this.checked")
+                                            input.is-checkradio(type="checkbox", checked=(true===false ? "checked" : undefined), name="exampleCheckbox", id="exampleCheckbox", style="border: .1rem solid #00d1b2;border-color: #00d1b2!important;" onclick="this.checked = !this.checked")
                                             label(for="exampleCheckbox") Verificación por correo electronico
 
                     hr
-                    .field.is-grouped
+                    //.field.is-grouped
                         .control
                             a.button.is-danger(href="/config") 
                                 span.icon.has-text-white

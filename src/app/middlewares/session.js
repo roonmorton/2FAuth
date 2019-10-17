@@ -11,10 +11,12 @@ module.exports = (req, res, next) => {
             console.log(req.session);
             res.redirect('/login');
         } else {
-            if(req.session.TwoFA)
-                redirect('/confirm',{
-                    email: req.session.email
-                });
+            if (req.session.TwoFA) {
+                if (req.url == '/confirm')
+                    next();
+                else
+                    res.redirect('/confirm');
+            }
             else
                 next();
         }
