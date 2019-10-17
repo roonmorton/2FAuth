@@ -78,7 +78,8 @@ app.route('/')
                 });
             }
 
-        } else {
+        }
+         else {
             res.status = 401;
             res.send(
                 {
