@@ -169,7 +169,12 @@ module.exports = (express, mysql) => {
                                         })
                                     .catch(
                                         err => {
-                                            res.redirect('/');
+                                            res.render('login', {
+                                                username: req.body.username,
+                                                errors: [
+                                                    'A ocurrido un error, intentalo mas tarde'
+                                                ]
+                                            });
                                             //Ocurrio un error devolver
                                             //response.send(res, null, "A ocurrido un error", "Error", err);
                                             //console.log(err);

@@ -64,7 +64,7 @@ const DBMysql = {
                 if (!poolConnection) reject(new Error('mysql: No connection'));
                 if (!data.obj.id) {
                     var query = "INSERT INTO " + data.tableModel.tableName + " SET " + poolConnection.escape(data.obj);
-                    console.log(query);
+                    //console.log(query);
                     poolConnection.query(query, function (err, results, fields) {
                         if (err) reject(err);
                         else if (!results.insertId) reject(new Error('mysql: No row inserted.'));
@@ -251,6 +251,7 @@ const DBMysql = {
                 if (!poolConnection) reject(new Error('mysql-model: No connection'));
                 //var q = "SELECT COUNT(*) counter FROM " + tableName + parsed.query;
                 poolConnection.query(query, function (err, result, fields) {
+                   // console.log(fields);
                     if (err || !result) reject(err);
                     else resolve(result);
                 });
