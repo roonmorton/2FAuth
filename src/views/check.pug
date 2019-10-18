@@ -24,11 +24,11 @@ html
                                                 p Se ha enviado un código de confirmación al correo 
                                                     strong ro*****@***l.com,     
                                                     | confirmalo para poder acceder al sistema. 
-                                    form(action="")
+                                    form(method="POST")
                                         .field
                                             .field
                                                 p.control.has-icons-left 
-                                                    input.input.is-rounded.is-medium(name="username", id="username", type="text",autofocus="autofocus")
+                                                    input.input.is-rounded.is-medium(name="code", type="text",autofocus="autofocus",onkeyup="this.value = this.value.toUpperCase();", maxlength="5")
                                                     span.icon.is-small.is-left
                                                         i.fas.fa-keyboard
                                         br
@@ -38,10 +38,22 @@ html
                                                         span.icon
                                                             i.fas.fa-check-square
                                                         span Validar
-                                        article.message.is-danger
+                                        if errors.length > 0
+                                            article.message.is-danger
+                                                .message-body(style="padding-top: .5em; padding-bottom: .5em")
+                                                    ul(style="margin-top: 0")
+                                                        each err in errors 
+                                                            li= err
+                                        if info.length > 0
+                                            article.message.is-success
+                                                .message-body(style="padding-top: .5em; padding-bottom: .5em")
+                                                    ul(style="margin-top: 0")
+                                                        each data in info 
+                                                            li= data
+                                        article.message.is-link
                                             .message-body(style="padding-top: .5em; padding-bottom: .5em")
-                                                ul(style="margin-top: 0")
-                                                    li Código invalido
+                                                p No has recibido el código, 
+                                                    a.is-text(href="/confirm?resend=true") reenvialo
                                                             
         block scripts
             script(src='/public/js/jquery.js')

@@ -11,8 +11,34 @@ $(document).ready(function () {
         $(".navbar-menu").toggleClass("is-active");
 
     });
+/* $('#btnSendToken').click(
+    event => {
+        console.log("click");
+        alertify.confirm("Seguro deseas reenviar un nuevo codigo?",
+            function () {
+                //console.log(jObj.data('type'));
+                $.post(
+                    '/renew-token',
+                    (result, status) => {
+                        //console.log(status);
+                    }).done((data) => {
+                        console.log(data);
+                        if (data.error === 0) {
+                            alertify.success(data.message);
+                        } else {
+                            alertify.error('A ocurrido un error, intentar mas tarde...');
+                        }
+                    }).fail((jqxhr, settings, ex) => {
+                        alertify.error('A ocurrido un error, intentar mas tarde...');
+                    });
+            },
+            function () {
 
-    window.submitCheckBox = (obj) => {
+            });
+    }
+);
+
+ */    window.submitCheckBox = (obj) => {
         let jObj = $(obj);
         console.log(obj.checked);
         alertify.confirm("Esta seguro de habilitar la seguridad?",

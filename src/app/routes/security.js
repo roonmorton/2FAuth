@@ -3,14 +3,23 @@ var tableModel = {
     idAttribute: 'idUser'
 };
 const sha1 = require('sha1');
+const mailer = require('../../config/mailer');
+ 
 module.exports = (express, mysql) => {
     const router = express.Router();
+router.route('/logout')
+.get(
+    (req,res) => {
+        delete req.session.user_id;
+        delete req.session.username;
+        delete req.session.user_fullname;
+        res.redirect('/');
+        
+    });
 
     router.route('/changeSecurity').post(
         (req, res) => {
-
             if (req.body.type === 'mail') {
-
                 mysql.query(
                     "INSERT INTO TBL_UserTypeAuth(idUserAuthType,idTypeAuth,idUser,status) "
                     + "VALUES(" + req.body.temp + "," + req.body.value + "," + req.session.user_id + "," + (req.body.value === 'true' ? 1 : 0) + ") ON DUPLICATE KEY UPDATE "
@@ -30,12 +39,14 @@ module.exports = (express, mysql) => {
             } else {
                 res.send({ status: false });
             }
-        }
-    );
+        });
+
+
+
     router.route('/signin')
         .get(
             (req, res) => {
-                console.log(req.session.user_id);
+                //console.log(req.session.user_id);
                 if (req.session.user_id) {
                     res.redirect('/');
                 } else {
@@ -82,8 +93,8 @@ module.exports = (express, mysql) => {
                                     .then(
                                         result => {
                                             req.session.user_id = result.idUser;
-                                            req.session.user_username = result.email;
-                                            req.session.user_fullname = result.name; + ' ' + (result.lastname || '')
+                                            req.session.username = result.email;
+                                            req.session.user_fullname = result.name + ' ' + (result.lastname || '');
                                             res.redirect('/');
                                             //console.log(result);
                                             //response.send(res, result, 'Usuario Creado', 'Tag add');
@@ -138,16 +149,16 @@ module.exports = (express, mysql) => {
                         result => {
                             if (result) {
                                 //Usuario correcto Login
-                                req.session.user_id = result.idUser;
+                                 req.session.user_id = result.idUser;
                                 req.session.username = result.email;
-                                req.session.user_fullname = result.name + ' ' + (result.lastname || '');
+                                req.session.user_fullname = result.name + ' ' + (result.lastname || ''); 
 
                                 /* Verificación doble autenticación */
                                 mysql.query(
                                     "SELECT TAUth.idTypeAuth, " +
                                     "TAUth.code, " +
                                     "TAUth.name, " +
-                                    "TAUth.status, " +
+                                    "UAuth.status, " +
                                     "u.username, " +
                                     "u.idUser, " +
                                     "u.email FROM TBL_User u " +
@@ -155,11 +166,11 @@ module.exports = (express, mysql) => {
                                     "ON u.idUser = UAuth.idUser " +
                                     "INNER JOIN TBL_TypeAuth TAUth " +
                                     "ON TAUth.idTypeAuth = UAuth.idTypeAuth " +
-                                    "WHERE TAUth.status = 1 AND TAUth.code='mail' AND u.idUser = " + req.session.user_id)
+                                    "WHERE UAuth.status = 1 AND TAUth.code='mail' AND u.idUser = " + req.session.user_id)
                                     .then(
                                         result => {
                                             console.log(result.length);
-                                            
+
                                             if (result.length > 0) { //Encontro verificacion habilitada
                                                 req.session.TwoFA = result[0].idUser;
                                                 res.redirect('/');
@@ -208,61 +219,269 @@ module.exports = (express, mysql) => {
     router.route('/confirm')
         .get(
             (req, res) => {
-                res.render('check');
+                console.log(req.query.resend);
+                if (
+                    req.session.TwoFA
+                    && req.session.user_id
+                    && req.session.username
+                ) {
+                    mysql.query(
+                        "INSERT INTO TBL_Token "
+                        + "SET token = UPPER(LEFT(UUID(), 5)), "
+                        + "expirate = ADDTIME(NOW(), '00:15:00'), "
+                        + "idUser = " + req.session.user_id
+                    )
+                        .then(
+                            result => {
+                                //console.log(result);
+                                if (result.insertId) {
+                                    mysql.find(
+                                        {
+                                            tableModel: {
+                                                idAttribute: 'idToken',
+                                                tableName: "TBL_Token"
+                                            },
+                                            params: {
+                                                id: result.insertId
+                                            }
+                                        }
+                                    ).then(
+                                        result => {
+                                            //console.log(result);
+                                            //var token = result.token;
+                                            mailer.sendToken({
+                                                to: req.session.username,
+                                                token: result.token
+                                            })
+                                                .then(result => {
+                                                    //console.log(result);
+                                                    res.render('check', {
+                                                        errors: [],
+                                                        info: req.query.resend == 'true' ? ['Se a generado un nuevo código, verificar'] : []
+                                                    });
+                                                    /* res.send({
+                                                        error: 0,
+                                                        message: result.info
+                                                    }); */
+                                                })
+                                                .catch(
+                                                    error => {
+                                                        console.log(error);
+                                                        res.render('check', {
+                                                            errors: ['A ocurrido un error, intentar mas tarde...'],
+                                                            info: []
+                                                        });
+                                                        /* res.status = 503;
+                                                        res.send(
+                                                            {
+                                                                error: 1,
+                                                                message: 'A ocurrido un error, intentar mas tarde...'
+                                                            }); */
+                                                    });
+                                        })
+                                        .catch(
+                                            err => {
+                                                console.log(err);
+
+                                                res.render('check', {
+                                                    errors: ['A ocurrido un error, intentar mas tarde...'],
+                                                    info: []
+                                                });
+                                               /*  res.status = 503;
+                                                res.send(
+                                                    {
+                                                        error: 1,
+                                                        message: 'A ocurrido un error, intentar mas tarde...'
+                                                    }); */
+                                            });
+                                } else {
+                                    res.render('check', {
+                                        errors: ['A ocurrido un error, intentar mas tarde...'],
+                                        info: []
+                                    });
+                                    /* res.status = 503;
+                                    res.send(
+                                        {
+                                            error: 1,
+                                            message: 'A ocurrido un error, intentar mas tarde...'
+                                        }); */
+                                }
+    
+                            }).catch(
+                                err => {
+                                    //console.log(err.sql);
+                                    res.render('check', {
+                                        errors: ['A ocurrido un error, intentar mas tarde...'],
+                                        info: []
+                                    });
+                                    /* res.status = 503;
+                                    res.send(
+                                        {
+                                            error: 1,
+                                            message: 'A ocurrido un error, intentar mas tarde...'
+                                        }); */
+                                });
+                } else {
+                    res.status = 401;
+                    res.send(
+                        {
+                            error: 1,
+                            message: 'Acciones no autorizadas...'
+                        });
+                }
+                
             })
         .post( /* Insertar */
             (req, res) => {
-                console.log(req.body);
+                if (
+                    req.session.TwoFA
+                    && req.session.user_id
+                    && req.session.username
+                ) {
 
-                mysql.count({
-                    tableModel: tableModel,
-                    conditions: {
-                        where: "email = '" + req.body.email + "' OR username = '" + req.body.username + "'"
+                    if (req.body.code) {
+                        mysql.count(
+                            {
+                                tableModel: {
+                                    idAttribute: 'idToken',
+                                    tableName: "TBL_Token"
+                                },
+                                conditions: {
+                                    where: "expirate >= NOW() AND idUser = " + req.session.user_id + " AND token = '" + req.body.code + "'"
+                                }
+                            }
+                        )
+                            .then(
+                                result => {
+                                    console.log(result);
+                                    if (result.counter == 1) {
+                                        delete req.session.TwoFA;
+                                        res.redirect('/');
+                                    } else {
+                                        res.render('check', {
+                                            errors: ["Código invalido, intentar de nuevo..."]
+                                        });
+                                    }
+                                })
+                            .catch(
+                                err => {
+                                    console.log(err);
+                                    res.render('check', {
+                                        errors: ["A ocurrido un error, intentar mas tarde..."]
+                                    });
+                                });
+                    } else {
+                        res.render('check', {
+                            errors: ["No hay codigo para validar..."]
+                        });
                     }
-                })
+
+                }
+                else {
+                    res.status = 401;
+                    res.send(
+                        {
+                            error: 1,
+                            message: 'Acciones no autorizadas...'
+                        });
+                }
+            });
+
+    router.route("/renew-token")
+        .get((req, res) => {
+            /* req.session.TwoFA = 2;
+            req.session.user = {
+                id: 2,
+                user: 'roonmorton@gmail.com'
+            }; */
+            //console.log(req.session);
+            if (
+                req.session.TwoFA
+                && req.session.user_id
+                && req.session.user_user
+            ) {
+                mysql.query(
+                    "INSERT INTO TBL_Token "
+                    + "SET token = UPPER(LEFT(UUID(), 5)), "
+                    + "expirate = ADDTIME(NOW(), '00:15:00'), "
+                    + "idUser = " + req.session.user_id
+                )
                     .then(
                         result => {
-                            if (result.counter > 0) {
-                                console.log("usuario ya existe");
-                                //Usuario ya existe
-                                response.send(res, null, 'Etiqueta  ya existe...', "Error", {});
-                            } else {
-                                mysql.save({
-                                    obj: {
-                                        name: req.body.name,
-                                        lastname: req.body.description || '',
-                                        email: req.body.email,
-                                        phone: req.body.phone,
-                                        birthday: req.body.birthday || null,
-                                        username: req.body.p_username,
-                                        password: req.body.p_password
-                                    },
-                                    tableModel: tableModel
-                                })
-                                    .then(
-                                        result => {
-                                            req.session.user_id = result.idUser;
-                                            req.session.user_username = result.email;
-                                            req.session.user_fullname = result.name /* + ' ' + (result.lastname || '') */
-                                            res.redirect('/');
-                                            //console.log(result);
-                                            //response.send(res, result, 'Usuario Creado', 'Tag add');
+                            //console.log(result);
+                            if (result.insertId) {
+                                mysql.find(
+                                    {
+                                        tableModel: {
+                                            idAttribute: 'idToken',
+                                            tableName: "TBL_Token"
+                                        },
+                                        params: {
+                                            id: result.insertId
+                                        }
+                                    }
+                                ).then(
+                                    result => {
+                                        //console.log(result);
+                                        //var token = result.token;
+                                        mailer.sendToken({
+                                            to: req.session.username,
+                                            token: result.token
                                         })
+                                            .then(result => {
+                                                //console.log(result);
+                                                res.send({
+                                                    error: 0,
+                                                    message: result.info
+                                                });
+                                            })
+                                            .catch(
+                                                error => {
+                                                    //console.log(error);
+                                                    res.status = 503;
+                                                    res.send(
+                                                        {
+                                                            error: 1,
+                                                            message: 'A ocurrido un error, intentar mas tarde...'
+                                                        });
+                                                });
+                                    })
                                     .catch(
                                         err => {
-                                            console.log(err);
-
-                                            response.send(res, null, "A ocurrido un error", "Error", err);
+                                            res.status = 503;
+                                            res.send(
+                                                {
+                                                    error: 1,
+                                                    message: 'A ocurrido un error, intentar mas tarde...'
+                                                });
                                         });
+                            } else {
+                                res.status = 503;
+                                res.send(
+                                    {
+                                        error: 1,
+                                        message: 'A ocurrido un error, intentar mas tarde...'
+                                    });
                             }
-                        })
-                    .catch(
-                        err => {
-                            console.log("error");
 
-                            response.send(res, null, "A ocurrido un error", "Error", err);
-                            console.log(err);
-                        });
-            });
+                        }).catch(
+                            err => {
+                                //console.log(err.sql);
+                                res.status = 503;
+                                res.send(
+                                    {
+                                        error: 1,
+                                        message: 'A ocurrido un error, intentar mas tarde...'
+                                    });
+                            });
+            } else {
+                res.status = 401;
+                res.send(
+                    {
+                        error: 1,
+                        message: 'Acciones no autorizadas...'
+                    });
+            }
+        });
     return router;
 };

@@ -12,7 +12,7 @@ module.exports = (req, res, next) => {
             res.redirect('/login');
         } else {
             if (req.session.TwoFA) {
-                if (req.url == '/confirm')
+                if (req.url.includes('/confirm'))
                     next();
                 else
                     res.redirect('/confirm');

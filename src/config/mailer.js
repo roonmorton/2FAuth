@@ -90,7 +90,7 @@ const mailer = {
                          reject(error);
                     } else {
                         resolve({
-                            info: 'Correo enviado...',
+                            info: 'Se ha enviado el nuevo código...',
                             response: info
                         });
                     }

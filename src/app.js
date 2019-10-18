@@ -104,7 +104,7 @@ app.get('/',
             + " LEFT JOIN TBL_User u "
             + " ON u.idUser = UTAuth.idUser"
             + " WHERE TAuth.status = 1 AND (UTAuth.idUser IS NULL OR UTAuth.idUser=" + req.session.user_id +")")
-            .then(
+            .then( 
                 result => {
                    // console.log(result);
                     res.render('index', {
