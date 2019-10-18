@@ -191,6 +191,15 @@ const DBMysql = {
       params: {
         id: 0,
         fields: ['','']
+      },
+      conditions: {
+        where: 'condition',
+        group: [atribute],
+        groupDEC: true,
+        having: 'count(attribute) = 1',
+        order: 'attribute',
+        orderDEC: true,
+        limit: []
       }
     }
     */
@@ -200,10 +209,11 @@ const DBMysql = {
             //var tableName = data.tableName;
             //var idAttribute = data.idAttribute || 'id';
             var fields = data.params.fields || '*';
+            var parsed = _parseConditions(data.conditions);
             return new Promise(function (resolve, reject) {
                 if (!data.params.id) reject(new Error('mysql-model: No id passed or set'));
                 if (!poolConnection) reject(new Error('mysql-model: No connection'));
-                var q = "SELECT " + fields + " FROM " + data.tableModel.tableName + " WHERE " + data.tableModel.idAttribute + "=" + poolConnection.escape(data.params.id);
+                var q = "SELECT " + fields + " FROM " + data.tableModel.tableName + (parsed.query.includes('WHERE') ? parsed.query + ' AND ' : ' WHERE ') + data.tableModel.idAttribute + "=" + poolConnection.escape(data.params.id);
                 poolConnection.query(q, function (err, result, fields) {
                     if (err || !result) reject(err);
                     else {

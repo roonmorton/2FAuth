@@ -1,0 +1,102 @@
+SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
+SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
+SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
+
+DROP SCHEMA IF EXISTS DBAuth;
+CREATE SCHEMA IF NOT EXISTS `DBAuth` DEFAULT CHARACTER SET utf8 ;
+
+USE DBAuth;
+
+
+CREATE TABLE IF NOT EXISTS `DBAuth`.TBL_User (
+  `idUser` INT NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(75) NULL,
+  `lastname` VARCHAR(75) NULL,
+  `email` VARCHAR(75) NULL,
+  `phone` VARCHAR(10) NULL,
+  `birthday` DATE NULL,
+  `username` VARCHAR(75) NULL,
+  `password` VARCHAR(225) NULL,
+  `create_time` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `update_time` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`idUser`))
+ENGINE = InnoDB;
+
+
+
+CREATE TABLE IF NOT EXISTS `DBAuth`.TBL_TypeAuth (
+  `idTypeAuth` INT NOT NULL AUTO_INCREMENT,
+  `code` VARCHAR(10) NOT NULL,
+  `name` VARCHAR(75) NOT NULL,
+  `description` VARCHAR(125) NULL,
+  `status` INT(1) NOT NULL DEFAULT 0,
+  `create_time` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `update_time` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`idTypeAuth`))
+ENGINE = InnoDB;
+
+
+CREATE TABLE IF NOT EXISTS `DBAuth`.TBL_UserAuthType (
+  `idUserAuthType` INT NOT NULL AUTO_INCREMENT,
+  `status` INT(1) NOT NULL DEFAULT 0,
+  `idUser` INT NULL,
+  `idTypeAuth` INT NULL,
+  PRIMARY KEY (`idUserAuthType`),
+  CONSTRAINT `fk_TBL_User_has_TBL_TypeAuth_TBL_User1`
+    FOREIGN KEY (`idUser`)
+    REFERENCES `DBAuth`.`TBL_User` (`idUser`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_TBL_User_has_TBL_TypeAuth_TBL_TypeAuth1`
+    FOREIGN KEY (`idTypeAuth`)
+    REFERENCES `DBAuth`.`TBL_TypeAuth` (`idTypeAuth`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+
+  -- CREATE INDEX `fk_TBL_User_has_TBL_TypeAuth_TBL_TypeAuth1_idx` (`idTypeAuth` ASC) VISIBLE;
+-- INDEX `fk_TBL_User_has_TBL_TypeAuth_TBL_User1_idx` (`idUser` ASC) VISIBLE,
+
+
+CREATE TABLE IF NOT EXISTS `DBAuth`.TBL_Token (
+  `idToken` INT NOT NULL AUTO_INCREMENT,
+  `token` VARCHAR(5) NOT NULL,
+  `status` int NOT NULL DEFAULT 1,
+  `expirate` TIMESTAMP NULL,
+  `create_time` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `update_time` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `idUser` INT NOT NULL,
+  `idTypeAuth` INT NULL,
+  PRIMARY KEY (`idToken`),
+  CONSTRAINT `fk_TBL_Token_TBL_User1`
+    FOREIGN KEY (`idUser`)
+    REFERENCES `DBAuth`.`TBL_User` (`idUser`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_TBL_Token_TBL_TypeAuth1`
+    FOREIGN KEY (`idTypeAuth`)
+    REFERENCES `DBAuth`.`TBL_TypeAuth` (`idTypeAuth`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+
+--  INDEX `fk_TBL_Token_TBL_User1_idx` (`idUser` ASC) VISIBLE,
+--  INDEX `fk_TBL_Token_TBL_TypeAuth1_idx` (`idTypeAuth` ASC) VISIBLE,
+
+
+DROP TRIGGER IF EXISTS TgrTBL_User;
+delimiter #
+CREATE TRIGGER TgrTBL_User AFTER INSERT ON TBL_User
+FOR EACH ROW
+BEGIN 
+	INSERT INTO TBL_UserAuthType(idUSer,idTypeAuth) SELECT NEW.idUser, idTypeAuth FROM TBL_TypeAuth;
+END#
+delimiter ;
+
+-- Crea Seguridad email
+INSERT INTO `dbauth`.`TBL_TypeAuth` (`code`, `name`, `description`, `status`) VALUES ('mail', 'correo electronico', 'Verificación por correo electronico', '1');
+

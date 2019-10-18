@@ -4,29 +4,30 @@ var tableModel = {
 };
 const sha1 = require('sha1');
 const mailer = require('../../config/mailer');
- 
+
 module.exports = (express, mysql) => {
     const router = express.Router();
-router.route('/logout')
-.get(
-    (req,res) => {
-        delete req.session.user_id;
-        delete req.session.username;
-        delete req.session.user_fullname;
-        res.redirect('/');
-        
-    });
+    router.route('/logout')
+        .get(
+            (req, res) => {
+                delete req.session.user_id;
+                delete req.session.username;
+                delete req.session.user_fullname;
+                res.redirect('/');
+
+            });
 
     router.route('/changeSecurity').post(
         (req, res) => {
             if (req.body.type === 'mail') {
                 mysql.query(
-                    "INSERT INTO TBL_UserTypeAuth(idUserAuthType,idTypeAuth,idUser,status) "
+                    "INSERT INTO TBL_UserAuthType(idUserAuthType,idTypeAuth,idUser,status) "
                     + "VALUES(" + req.body.temp + "," + req.body.value + "," + req.session.user_id + "," + (req.body.value === 'true' ? 1 : 0) + ") ON DUPLICATE KEY UPDATE "
-                    + "status=" + (req.body.value === 'true' ? 1 : 0))
+                    + "status=" + (req.body.value == 'true' ? 1 : 0)
+                    )
                     .then(
                         result => {
-                            console.log(result);
+                           // console.log(result);
                             res.send({ status: true });
 
                         })
@@ -59,7 +60,7 @@ router.route('/logout')
             })
         .post( /* Insertar */
             (req, res) => {
-                console.log(req.body);
+               //console.log(req.body);
                 var objTemp = {
                     name: req.body.name,
                     lastname: req.body.lastname,
@@ -78,7 +79,7 @@ router.route('/logout')
                     .then(
                         result => {
                             if (result.counter > 0) {
-                                console.log("usuario ya existe");
+                               // console.log("usuario ya existe");
                                 res.render('signin', {
                                     obj: objTemp,
                                     errors: ["Usuario/Correo ya existe..."]
@@ -112,7 +113,7 @@ router.route('/logout')
                         })
                     .catch(
                         err => {
-                            console.log("error");
+                            console.log(err);
                             res.render('signin', {
                                 obj: objTemp,
                                 errors: ["A ocurrido un error, intente mas tarde"]
@@ -141,35 +142,41 @@ router.route('/logout')
                     },
                     params: {
                         id: req.body.username,
-                        fields: ['idUser', 'email', 'name', 'lastname'],
+                        fields: ['idUser', 'email', 'name', 'lastname']
+                    },
+                    conditions: {
                         where: "password = '" + sha1(req.body.password) + "'"
                     }
                 })
                     .then(
                         result => {
-                            if (result) {
+                           // console.log(result);
+
+                            if (result.idUser) {
+                                
                                 //Usuario correcto Login
-                                 req.session.user_id = result.idUser;
+                                req.session.user_id = result.idUser;
                                 req.session.username = result.email;
-                                req.session.user_fullname = result.name + ' ' + (result.lastname || ''); 
+                                req.session.user_fullname = result.name + ' ' + (result.lastname || '');
 
                                 /* Verificación doble autenticación */
                                 mysql.query(
-                                    "SELECT TAUth.idTypeAuth, " +
-                                    "TAUth.code, " +
-                                    "TAUth.name, " +
-                                    "UAuth.status, " +
-                                    "u.username, " +
-                                    "u.idUser, " +
-                                    "u.email FROM TBL_User u " +
-                                    "INNER JOIN TBL_UserTypeAuth UAuth " +
-                                    "ON u.idUser = UAuth.idUser " +
-                                    "INNER JOIN TBL_TypeAuth TAUth " +
-                                    "ON TAUth.idTypeAuth = UAuth.idTypeAuth " +
-                                    "WHERE UAuth.status = 1 AND TAUth.code='mail' AND u.idUser = " + req.session.user_id)
+                                    `SELECT TAUth.idTypeAuth, 
+                                        TAUth.code, 
+                                        TAUth.name, 
+                                        UAuth.status, 
+                                        u.username, 
+                                        u.idUser, 
+                                        u.email FROM TBL_User u 
+                                        INNER JOIN TBL_UserAuthType UAuth 
+                                        ON u.idUser = UAuth.idUser 
+                                        INNER JOIN TBL_TypeAuth TAUth 
+                                        ON TAUth.idTypeAuth = UAuth.idTypeAuth 
+                                        WHERE UAuth.status = 1 AND TAUth.code='mail' 
+                                        AND u.idUser =` + req.session.user_id)
                                     .then(
                                         result => {
-                                            console.log(result.length);
+                                            //console.log(result.length);
 
                                             if (result.length > 0) { //Encontro verificacion habilitada
                                                 req.session.TwoFA = result[0].idUser;
@@ -180,15 +187,13 @@ router.route('/logout')
                                         })
                                     .catch(
                                         err => {
+                                           console.log(err)
                                             res.render('login', {
                                                 username: req.body.username,
                                                 errors: [
                                                     'A ocurrido un error, intentalo mas tarde'
                                                 ]
                                             });
-                                            //Ocurrio un error devolver
-                                            //response.send(res, null, "A ocurrido un error", "Error", err);
-                                            //console.log(err);
                                         });
                                 /* end Auth Type */
 
@@ -219,7 +224,7 @@ router.route('/logout')
     router.route('/confirm')
         .get(
             (req, res) => {
-                console.log(req.query.resend);
+                //console.log(req.query.resend);
                 if (
                     req.session.TwoFA
                     && req.session.user_id
@@ -256,18 +261,16 @@ router.route('/logout')
                                                 .then(result => {
                                                     //console.log(result);
                                                     res.render('check', {
+                                                        mail: req.session.username,
                                                         errors: [],
                                                         info: req.query.resend == 'true' ? ['Se a generado un nuevo código, verificar'] : []
                                                     });
-                                                    /* res.send({
-                                                        error: 0,
-                                                        message: result.info
-                                                    }); */
                                                 })
                                                 .catch(
                                                     error => {
                                                         console.log(error);
                                                         res.render('check', {
+                                                            mail: req.session.username,
                                                             errors: ['A ocurrido un error, intentar mas tarde...'],
                                                             info: []
                                                         });
@@ -284,42 +287,29 @@ router.route('/logout')
                                                 console.log(err);
 
                                                 res.render('check', {
+                                                    mail: req.session.username,
                                                     errors: ['A ocurrido un error, intentar mas tarde...'],
                                                     info: []
                                                 });
-                                               /*  res.status = 503;
-                                                res.send(
-                                                    {
-                                                        error: 1,
-                                                        message: 'A ocurrido un error, intentar mas tarde...'
-                                                    }); */
                                             });
                                 } else {
+
                                     res.render('check', {
+                                        mail: req.session.username,
                                         errors: ['A ocurrido un error, intentar mas tarde...'],
                                         info: []
                                     });
-                                    /* res.status = 503;
-                                    res.send(
-                                        {
-                                            error: 1,
-                                            message: 'A ocurrido un error, intentar mas tarde...'
-                                        }); */
                                 }
-    
+
                             }).catch(
                                 err => {
-                                    //console.log(err.sql);
+                                    console.log(err);
+
                                     res.render('check', {
+                                        mail: req.session.username,
                                         errors: ['A ocurrido un error, intentar mas tarde...'],
                                         info: []
                                     });
-                                    /* res.status = 503;
-                                    res.send(
-                                        {
-                                            error: 1,
-                                            message: 'A ocurrido un error, intentar mas tarde...'
-                                        }); */
                                 });
                 } else {
                     res.status = 401;
@@ -329,7 +319,7 @@ router.route('/logout')
                             message: 'Acciones no autorizadas...'
                         });
                 }
-                
+
             })
         .post( /* Insertar */
             (req, res) => {
@@ -353,12 +343,14 @@ router.route('/logout')
                         )
                             .then(
                                 result => {
-                                    console.log(result);
+                                    //console.log(result);
                                     if (result.counter == 1) {
                                         delete req.session.TwoFA;
                                         res.redirect('/');
                                     } else {
                                         res.render('check', {
+                                            mail: req.session.username,
+                                            info: [],
                                             errors: ["Código invalido, intentar de nuevo..."]
                                         });
                                     }
@@ -367,11 +359,15 @@ router.route('/logout')
                                 err => {
                                     console.log(err);
                                     res.render('check', {
+                                        mail: req.session.username,
+                                        info: [],
                                         errors: ["A ocurrido un error, intentar mas tarde..."]
                                     });
                                 });
                     } else {
                         res.render('check', {
+                            mail: req.session.username,
+                            info: [],
                             errors: ["No hay codigo para validar..."]
                         });
                     }
@@ -387,101 +383,6 @@ router.route('/logout')
                 }
             });
 
-    router.route("/renew-token")
-        .get((req, res) => {
-            /* req.session.TwoFA = 2;
-            req.session.user = {
-                id: 2,
-                user: 'roonmorton@gmail.com'
-            }; */
-            //console.log(req.session);
-            if (
-                req.session.TwoFA
-                && req.session.user_id
-                && req.session.user_user
-            ) {
-                mysql.query(
-                    "INSERT INTO TBL_Token "
-                    + "SET token = UPPER(LEFT(UUID(), 5)), "
-                    + "expirate = ADDTIME(NOW(), '00:15:00'), "
-                    + "idUser = " + req.session.user_id
-                )
-                    .then(
-                        result => {
-                            //console.log(result);
-                            if (result.insertId) {
-                                mysql.find(
-                                    {
-                                        tableModel: {
-                                            idAttribute: 'idToken',
-                                            tableName: "TBL_Token"
-                                        },
-                                        params: {
-                                            id: result.insertId
-                                        }
-                                    }
-                                ).then(
-                                    result => {
-                                        //console.log(result);
-                                        //var token = result.token;
-                                        mailer.sendToken({
-                                            to: req.session.username,
-                                            token: result.token
-                                        })
-                                            .then(result => {
-                                                //console.log(result);
-                                                res.send({
-                                                    error: 0,
-                                                    message: result.info
-                                                });
-                                            })
-                                            .catch(
-                                                error => {
-                                                    //console.log(error);
-                                                    res.status = 503;
-                                                    res.send(
-                                                        {
-                                                            error: 1,
-                                                            message: 'A ocurrido un error, intentar mas tarde...'
-                                                        });
-                                                });
-                                    })
-                                    .catch(
-                                        err => {
-                                            res.status = 503;
-                                            res.send(
-                                                {
-                                                    error: 1,
-                                                    message: 'A ocurrido un error, intentar mas tarde...'
-                                                });
-                                        });
-                            } else {
-                                res.status = 503;
-                                res.send(
-                                    {
-                                        error: 1,
-                                        message: 'A ocurrido un error, intentar mas tarde...'
-                                    });
-                            }
-
-                        }).catch(
-                            err => {
-                                //console.log(err.sql);
-                                res.status = 503;
-                                res.send(
-                                    {
-                                        error: 1,
-                                        message: 'A ocurrido un error, intentar mas tarde...'
-                                    });
-                            });
-            } else {
-                res.status = 401;
-                res.send(
-                    {
-                        error: 1,
-                        message: 'Acciones no autorizadas...'
-                    });
-            }
-        });
+    
     return router;
 };
