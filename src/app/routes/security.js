@@ -181,7 +181,7 @@ module.exports = (express, mysql) => {
 
                                             if (result.length > 0) { //Encontro verificacion habilitada
                                                 req.session.TwoFA = result[0].idUser;
-                                                res.redirect('/');
+                                                res.redirect('/confirm');
                                             } else {
                                                 res.redirect('/');
                                             }
@@ -272,7 +272,7 @@ module.exports = (express, mysql) => {
                                                     error => {
                                                         console.log(error);
                                                         req.session.errors = ['A ocurrido un error, intentar mas tarde...'];
-
+delete req.session.TwoFA;
                                                         delete req.session.user_id;
                                                         delete req.session.username;
                                                         delete req.session.user_fullname;
@@ -288,7 +288,7 @@ module.exports = (express, mysql) => {
                                             err => {
                                                 console.log(err);
                                                 req.session.errors = ['A ocurrido un error, intentar mas tarde...'];
-
+delete req.session.TwoFA;
                                                 delete req.session.user_id;
                                                 delete req.session.username;
                                                 delete req.session.user_fullname;
@@ -301,7 +301,7 @@ module.exports = (express, mysql) => {
                                             });
                                 } else {
                                     req.session.errors = ['A ocurrido un error, intentar mas tarde...'];
-
+delete req.session.TwoFA;
                                     delete req.session.user_id;
                                     delete req.session.username;
                                     delete req.session.user_fullname;
@@ -318,7 +318,7 @@ module.exports = (express, mysql) => {
                                     console.log(err);
 
                                     req.session.errors = ['A ocurrido un error, intentar mas tarde...'];
-
+delete req.session.TwoFA;
                                     delete req.session.user_id;
                                     delete req.session.username;
                                     delete req.session.user_fullname;

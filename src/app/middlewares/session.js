@@ -8,17 +8,19 @@ module.exports = (req, res, next) => {
             next();
     } else {
         if (!req.session.user_id) {
-           // console.log(req.session);
+            // console.log(req.session);
             res.redirect('/login');
         } else {
             if (req.session.TwoFA) {
-                if (req.url.includes('/confirm'))
+                if (req.url.includes('/confirm')) {
                     next();
-                else
+                } else {
                     res.redirect('/confirm');
+                }
             }
-            else
+            else {
                 next();
+            }
         }
     }
 }

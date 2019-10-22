@@ -21,7 +21,7 @@ block content
                                         li
                                             .field
                                                 input.is-checkradio(type="checkbox", checked=(auth.status===1 ? "checked" : undefined), id=`chbox${auth.code}`, style="border: .1rem solid #00d1b2;border-color: #00d1b2!important;", onclick="submitCheckBox(this)", data-type=`${auth.code}`, data-id=`${auth.idTypeAuth}`, data-temp=`${auth.idUserAuthType}`)
-                                                label(for=`chbox${auth.code}`) Verificación por #{auth.description}
+                                                label(for=`chbox${auth.code}`) #{auth.description}
                                     //li 
                                         .field
                                             input.is-checkradio(type="checkbox", checked=(true===false ? "checked" : undefined), name="exampleCheckbox", id="exampleCheckbox", style="border: .1rem solid #00d1b2;border-color: #00d1b2!important;" onclick="this.checked = !this.checked")
