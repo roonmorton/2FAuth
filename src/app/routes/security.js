@@ -24,10 +24,10 @@ module.exports = (express, mysql) => {
                     "INSERT INTO TBL_UserAuthType(idUserAuthType,idTypeAuth,idUser,status) "
                     + "VALUES(" + req.body.temp + "," + req.body.value + "," + req.session.user_id + "," + (req.body.value === 'true' ? 1 : 0) + ") ON DUPLICATE KEY UPDATE "
                     + "status=" + (req.body.value == 'true' ? 1 : 0)
-                    )
+                )
                     .then(
                         result => {
-                           // console.log(result);
+                            // console.log(result);
                             res.send({ status: true });
 
                         })
@@ -60,7 +60,7 @@ module.exports = (express, mysql) => {
             })
         .post( /* Insertar */
             (req, res) => {
-               //console.log(req.body);
+                //console.log(req.body);
                 var objTemp = {
                     name: req.body.name,
                     lastname: req.body.lastname,
@@ -79,7 +79,7 @@ module.exports = (express, mysql) => {
                     .then(
                         result => {
                             if (result.counter > 0) {
-                               // console.log("usuario ya existe");
+                                // console.log("usuario ya existe");
                                 res.render('signin', {
                                     obj: objTemp,
                                     errors: ["Usuario/Correo ya existe..."]
@@ -128,8 +128,9 @@ module.exports = (express, mysql) => {
         .get(
             (req, res) => {
                 res.render('login', {
-                    errors: []
+                    errors: (req.session.errors ? req.session.errors : [])
                 });
+                delete req.session.errors;
             })
         .post(
             (req, res) => {
@@ -150,10 +151,10 @@ module.exports = (express, mysql) => {
                 })
                     .then(
                         result => {
-                           // console.log(result);
+                            // console.log(result);
 
                             if (result.idUser) {
-                                
+
                                 //Usuario correcto Login
                                 req.session.user_id = result.idUser;
                                 req.session.username = result.email;
@@ -187,7 +188,7 @@ module.exports = (express, mysql) => {
                                         })
                                     .catch(
                                         err => {
-                                           console.log(err)
+                                            console.log(err)
                                             res.render('login', {
                                                 username: req.body.username,
                                                 errors: [
@@ -260,6 +261,7 @@ module.exports = (express, mysql) => {
                                             })
                                                 .then(result => {
                                                     //console.log(result);
+                                                    delete req.session.errors;
                                                     res.render('check', {
                                                         mail: req.session.username,
                                                         errors: [],
@@ -269,47 +271,63 @@ module.exports = (express, mysql) => {
                                                 .catch(
                                                     error => {
                                                         console.log(error);
-                                                        res.render('check', {
+                                                        req.session.errors = ['A ocurrido un error, intentar mas tarde...'];
+
+                                                        delete req.session.user_id;
+                                                        delete req.session.username;
+                                                        delete req.session.user_fullname;
+                                                        res.redirect('/');
+                                                        /* res.render('check', {
                                                             mail: req.session.username,
                                                             errors: ['A ocurrido un error, intentar mas tarde...'],
                                                             info: []
-                                                        });
-                                                        /* res.status = 503;
-                                                        res.send(
-                                                            {
-                                                                error: 1,
-                                                                message: 'A ocurrido un error, intentar mas tarde...'
-                                                            }); */
+                                                        }); */
                                                     });
                                         })
                                         .catch(
                                             err => {
                                                 console.log(err);
+                                                req.session.errors = ['A ocurrido un error, intentar mas tarde...'];
 
-                                                res.render('check', {
+                                                delete req.session.user_id;
+                                                delete req.session.username;
+                                                delete req.session.user_fullname;
+                                                res.redirect('/');
+                                                /* res.render('check', {
                                                     mail: req.session.username,
                                                     errors: ['A ocurrido un error, intentar mas tarde...'],
                                                     info: []
-                                                });
+                                                }); */
                                             });
                                 } else {
+                                    req.session.errors = ['A ocurrido un error, intentar mas tarde...'];
 
-                                    res.render('check', {
+                                    delete req.session.user_id;
+                                    delete req.session.username;
+                                    delete req.session.user_fullname;
+                                    res.redirect('/');
+                                    /* res.render('check', {
                                         mail: req.session.username,
                                         errors: ['A ocurrido un error, intentar mas tarde...'],
                                         info: []
-                                    });
+                                    }); */
                                 }
 
                             }).catch(
                                 err => {
                                     console.log(err);
 
-                                    res.render('check', {
+                                    req.session.errors = ['A ocurrido un error, intentar mas tarde...'];
+
+                                    delete req.session.user_id;
+                                    delete req.session.username;
+                                    delete req.session.user_fullname;
+                                    res.redirect('/');
+                                    /* res.render('check', {
                                         mail: req.session.username,
                                         errors: ['A ocurrido un error, intentar mas tarde...'],
                                         info: []
-                                    });
+                                    }); */
                                 });
                 } else {
                     res.status = 401;
@@ -383,6 +401,6 @@ module.exports = (express, mysql) => {
                 }
             });
 
-    
+
     return router;
 };

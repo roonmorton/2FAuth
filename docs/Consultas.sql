@@ -36,6 +36,7 @@ INSERT INTO TBL_UserAuthType(idUserAuthType,idTypeAuth,idUser,status)
 VALUES( 5 , 5 , 1 , 0 ) ON DUPLICATE KEY UPDATE 
 status= 0;
 
+
 -- Crea Token validacion por usuario
 INSERT INTO TBL_Token 
 SET token = UPPER(LEFT(UUID(), 5)), 
