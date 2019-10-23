@@ -4,3 +4,4 @@ Cookies
 - username = email
 - user_fullname = fullname
 - TwoFA = idUser
+- tokGen 

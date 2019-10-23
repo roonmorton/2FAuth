@@ -232,104 +232,116 @@ module.exports = (express, mysql) => {
                     && req.session.user_id
                     && req.session.username
                 ) {
-                    mysql.query(
-                        "INSERT INTO TBL_Token "
-                        + "SET token = UPPER(LEFT(UUID(), 5)), "
-                        + "expirate = ADDTIME(NOW(), '00:15:00'), "
-                        + "idUser = " + req.session.user_id
-                    )
-                        .then(
-                            result => {
-                                //console.log(result);
-                                if (result.insertId) {
-                                    mysql.find(
-                                        {
-                                            tableModel: {
-                                                idAttribute: 'idToken',
-                                                tableName: "TBL_Token"
-                                            },
-                                            params: {
-                                                id: result.insertId
+
+                    if ((req.query.resend == 'true' && req.session.gen) || !req.session.gen) {
+                        
+                        mysql.query(
+                            "INSERT INTO TBL_Token "
+                            + "SET token = UPPER(LEFT(UUID(), 5)), "
+                            + "expirate = ADDTIME(NOW(), '00:15:00'), "
+                            + "idUser = " + req.session.user_id
+                        )
+                            .then(
+                                result => {
+                                    //console.log(result);
+                                    if (result.insertId) {
+                                        mysql.find(
+                                            {
+                                                tableModel: {
+                                                    idAttribute: 'idToken',
+                                                    tableName: "TBL_Token"
+                                                },
+                                                params: {
+                                                    id: result.insertId
+                                                }
                                             }
-                                        }
-                                    ).then(
-                                        result => {
-                                            //console.log(result);
-                                            //var token = result.token;
-                                            mailer.sendToken({
-                                                to: req.session.username,
-                                                token: result.token
-                                            })
-                                                .then(result => {
-                                                    //console.log(result);
-                                                    delete req.session.errors;
-                                                    res.render('check', {
-                                                        mail: req.session.username,
-                                                        errors: [],
-                                                        info: req.query.resend == 'true' ? ['Se a generado un nuevo código, verificar'] : []
-                                                    });
+                                        ).then(
+                                            result => {
+                                                //console.log(result);
+                                                //var token = result.token;
+                                                mailer.sendToken({
+                                                    to: req.session.username,
+                                                    token: result.token
                                                 })
-                                                .catch(
-                                                    error => {
-                                                        console.log(error);
-                                                        req.session.errors = ['A ocurrido un error, intentar mas tarde...'];
-delete req.session.TwoFA;
-                                                        delete req.session.user_id;
-                                                        delete req.session.username;
-                                                        delete req.session.user_fullname;
-                                                        res.redirect('/');
-                                                        /* res.render('check', {
+                                                    .then(result => {
+                                                        //console.log(result);
+                                                        req.session.gen = true;
+                                                        delete req.session.errors;
+                                                        res.render('check', {
                                                             mail: req.session.username,
-                                                            errors: ['A ocurrido un error, intentar mas tarde...'],
-                                                            info: []
-                                                        }); */
-                                                    });
-                                        })
-                                        .catch(
-                                            err => {
-                                                console.log(err);
-                                                req.session.errors = ['A ocurrido un error, intentar mas tarde...'];
-delete req.session.TwoFA;
-                                                delete req.session.user_id;
-                                                delete req.session.username;
-                                                delete req.session.user_fullname;
-                                                res.redirect('/');
-                                                /* res.render('check', {
-                                                    mail: req.session.username,
-                                                    errors: ['A ocurrido un error, intentar mas tarde...'],
-                                                    info: []
-                                                }); */
-                                            });
-                                } else {
-                                    req.session.errors = ['A ocurrido un error, intentar mas tarde...'];
-delete req.session.TwoFA;
-                                    delete req.session.user_id;
-                                    delete req.session.username;
-                                    delete req.session.user_fullname;
-                                    res.redirect('/');
-                                    /* res.render('check', {
-                                        mail: req.session.username,
-                                        errors: ['A ocurrido un error, intentar mas tarde...'],
-                                        info: []
-                                    }); */
-                                }
+                                                            errors: [],
+                                                            info: req.query.resend == 'true' ? ['Se a generado un nuevo código, verificar'] : []
+                                                        });
+                                                    })
+                                                    .catch(
+                                                        error => {
+                                                            console.log(error);
+                                                            req.session.errors = ['A ocurrido un error, intentar mas tarde...'];
+                                                            delete req.session.TwoFA;
+                                                            delete req.session.user_id;
+                                                            delete req.session.username;
+                                                            delete req.session.user_fullname;
+                                                            res.redirect('/');
+                                                            /* res.render('check', {
+                                                                mail: req.session.username,
+                                                                errors: ['A ocurrido un error, intentar mas tarde...'],
+                                                                info: []
+                                                            }); */
+                                                        });
+                                            })
+                                            .catch(
+                                                err => {
+                                                    console.log(err);
+                                                    req.session.errors = ['A ocurrido un error, intentar mas tarde...'];
+                                                    delete req.session.TwoFA;
+                                                    delete req.session.user_id;
+                                                    delete req.session.username;
+                                                    delete req.session.user_fullname;
+                                                    res.redirect('/');
+                                                    /* res.render('check', {
+                                                        mail: req.session.username,
+                                                        errors: ['A ocurrido un error, intentar mas tarde...'],
+                                                        info: []
+                                                    }); */
+                                                });
+                                    } else {
+                                        req.session.errors = ['A ocurrido un error, intentar mas tarde...'];
+                                        delete req.session.TwoFA;
+                                        delete req.session.user_id;
+                                        delete req.session.username;
+                                        delete req.session.user_fullname;
+                                        res.redirect('/');
+                                        /* res.render('check', {
+                                            mail: req.session.username,
+                                            errors: ['A ocurrido un error, intentar mas tarde...'],
+                                            info: []
+                                        }); */
+                                    }
 
-                            }).catch(
-                                err => {
-                                    console.log(err);
+                                }).catch(
+                                    err => {
+                                        console.log(err);
 
-                                    req.session.errors = ['A ocurrido un error, intentar mas tarde...'];
-delete req.session.TwoFA;
-                                    delete req.session.user_id;
-                                    delete req.session.username;
-                                    delete req.session.user_fullname;
-                                    res.redirect('/');
-                                    /* res.render('check', {
-                                        mail: req.session.username,
-                                        errors: ['A ocurrido un error, intentar mas tarde...'],
-                                        info: []
-                                    }); */
-                                });
+                                        req.session.errors = ['A ocurrido un error, intentar mas tarde...'];
+                                        delete req.session.TwoFA;
+                                        delete req.session.user_id;
+                                        delete req.session.username;
+                                        delete req.session.user_fullname;
+                                        res.redirect('/');
+                                        /* res.render('check', {
+                                            mail: req.session.username,
+                                            errors: ['A ocurrido un error, intentar mas tarde...'],
+                                            info: []
+                                        }); */
+                                    });
+                    } else {
+                        res.render('check', {
+                            mail: req.session.username,
+                            errors: [],
+                            info: []
+                        });
+                    }
+
                 } else {
                     res.status = 401;
                     res.send(
@@ -347,25 +359,40 @@ delete req.session.TwoFA;
                     && req.session.user_id
                     && req.session.username
                 ) {
-
                     if (req.body.code) {
-                        mysql.count(
-                            {
-                                tableModel: {
-                                    idAttribute: 'idToken',
-                                    tableName: "TBL_Token"
-                                },
-                                conditions: {
-                                    where: "expirate >= NOW() AND idUser = " + req.session.user_id + " AND token = '" + req.body.code + "'"
-                                }
+                        mysql.count({
+                            tableModel: {
+                                idAttribute: 'idToken',
+                                tableName: "TBL_Token"
+                            },
+                            conditions: {
+                                where: "status = 1 AND expirate >= NOW() AND idUser = " + req.session.user_id + " AND token = '" + req.body.code + "'"
                             }
-                        )
+                        })
                             .then(
                                 result => {
                                     //console.log(result);
                                     if (result.counter == 1) {
+                                        //Inhabilitar el Token al utilizarlo
+                                        mysql.save({
+                                            tableModel: {
+                                                idAttribute: 'token',
+                                                tableName: "TBL_Token"
+                                            },
+                                            obj: {
+                                                id: req.body.code,
+                                                status: 0
+                                            }
+                                        })
+                                            .then(result => {
+                                                console.log('Token deshabilitado');
+                                            }).catch(err => {
+                                                console.log('Error al deshabilitar Token deshabilitado');
+                                            });
+                                        delete req.session.gen;
                                         delete req.session.TwoFA;
                                         res.redirect('/');
+
                                     } else {
                                         res.render('check', {
                                             mail: req.session.username,
