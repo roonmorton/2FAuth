@@ -38,6 +38,7 @@ module.exports = (express, mysql) => {
 
                         });
             } else {
+                console.log("mail no definido...");
                 res.send({ status: false });
             }
         });
