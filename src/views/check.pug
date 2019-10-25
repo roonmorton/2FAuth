@@ -14,10 +14,16 @@ html
                     .columns.is-centered.is-container
                         .column.is-6.is-half.is-paddingless
                             .box.is-paddingless
-                                nav.level.has-background-light.has-shadow(style="padding:0.5em 0 0.5em 0;")
-                                    .level-item.has-text-centered
-                                        figure.image.is-48x48
-                                            img(src="/public/img/logo3.png", width="35", height="35")
+                                nav.level.has-background-light.has-shadow(style="padding:0.5em 0.5em;")
+                                    .level-left
+                                        .level-item
+                                    .level-content
+                                        .level-item
+                                            figure.image.is-48x48
+                                                img(src="/public/img/logo3.png", style="max-height: 100% !important;", width="80", height="20")
+                                    .level-right
+                                        .level-item
+                                            a.delete(href="/logout")
                                 .content(style="padding-left: 1.5em; padding-right: 1.5em; padding-bottom: 1.5em;")
                                     article.message.is-info
                                             .message-body
