@@ -234,7 +234,7 @@ module.exports = (express, mysql) => {
                 ) {
 
                     if ((req.query.resend == 'true' && req.session.gen) || !req.session.gen) {
-                        
+
                         mysql.query(
                             "INSERT INTO TBL_Token "
                             + "SET token = UPPER(LEFT(UUID(), 5)), "
@@ -343,12 +343,18 @@ module.exports = (express, mysql) => {
                     }
 
                 } else {
-                    res.status = 401;
-                    res.send(
-                        {
-                            error: 1,
-                            message: 'Acciones no autorizadas...'
-                        });
+                    if (req.session.user_id) {
+                        res.redirect('/');
+                    } else {
+                        res.status = 401;
+                        //res.redirect('/');
+                        res.send(
+                            {
+                                error: 1,
+                                message: 'Acciones no autorizadas...'
+                            });
+                    }
+
                 }
 
             })
